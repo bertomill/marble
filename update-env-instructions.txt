@@ -1,0 +1,10 @@
+# Instructions for updating your .env.local file
+
+Add or update the following environment variables in your .env.local file:
+
+# Cloud Run API URL
+NEXT_PUBLIC_API_URL=https://sitestack-api-ibfi5uohhq-uc.a.run.app
+NEXT_PUBLIC_PYTHON_BACKEND_URL=https://sitestack-api-ibfi5uohhq-uc.a.run.app
+BACKEND_API_URL=https://sitestack-api-ibfi5uohhq-uc.a.run.app
+
+# Keep all other environment variables unchanged
