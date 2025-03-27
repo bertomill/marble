@@ -25,6 +25,11 @@ export default function ScreenshotDetailPage() {
     const fetchScreenshot = async () => {
       setLoading(true);
       try {
+        if (!params || !params.id) {
+          setError('Missing screenshot ID');
+          setLoading(false);
+          return;
+        }
         const id = params.id as string;
         const data = await getScreenshotById(id);
         

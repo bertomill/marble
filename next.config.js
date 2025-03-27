@@ -5,11 +5,6 @@ const nextConfig = {
     // Don't run ESLint during production builds
     ignoreDuringBuilds: true,
   },
-  // Add experimental configuration to handle the route group issue
-  experimental: {
-    // This helps with route group handling during build
-    serverExternalPackages: [],
-  },
   // Add output configuration for better build handling
   output: 'standalone',
 };
