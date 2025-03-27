@@ -67,7 +67,7 @@ export default function Header() {
         <div className={`w-full max-w-6xl flex items-center justify-between ${scrolled ? 'bg-white/90 backdrop-blur-sm shadow-md' : 'bg-white/80 backdrop-blur-sm'} rounded-full px-5 py-2`}>
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-xl font-semibold text-neutral-800">SiteStack</span>
+            <span className="text-xl font-semibold text-neutral-800">Marble</span>
           </Link>
 
           {/* Desktop Navigation */}

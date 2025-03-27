@@ -9,7 +9,7 @@ export default function DashboardRootLayout({
 }) {
   return (
     <DashboardLayout>
-      <div className="w-full h-full">
+      <div className="w-full h-full overflow-x-hidden">
         {children}
       </div>
     </DashboardLayout>

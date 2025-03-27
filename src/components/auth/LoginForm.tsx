@@ -72,11 +72,11 @@ export default function LoginForm() {
     <div className="bg-black/60 backdrop-blur-xl p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-800 animate-fadeIn">
       <div className="flex items-center justify-center mb-6">
         <div className="text-white text-3xl font-bold">
-          <span className="text-white">SiteStack</span>
+          <span className="text-white">Marble</span>
         </div>
       </div>
       
-      <h2 className="text-2xl font-medium text-white text-center mb-8">Login to SiteStack</h2>
+      <h2 className="text-2xl font-medium text-white text-center mb-8">Login to Marble</h2>
       
       {error && (
         <div className="bg-red-900/30 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">

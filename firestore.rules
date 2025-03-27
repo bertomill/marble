@@ -1,19 +1,7 @@
 rules_version = '2';
-// Helper function to check if user is authorized
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthorizedUser() {
-      return request.auth != null && 
-        (request.auth.token.email == 'bertmill19@gmail.com' ||
-         request.auth.uid in get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.roles);
-    }
-
-    // Website examples collection
-    match /websiteExamples/{documentId} {
-      allow read: if request.auth != null;  // Any authenticated user can read
-      allow write: if request.auth != null;  // Any authenticated user can write
-    }
-
     // Projects collection - users can manage their own projects
     match /projects/{projectId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
@@ -26,10 +14,25 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
-    // Admins collection - only accessible by authorized users
+    // Website examples collection - accessible to any authenticated user
+    match /websiteExamples/{documentId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Screenshots collection - accessible to any authenticated user
+    match /screenshots/{documentId} {
+      // Allow any authenticated user to read screenshots
+      allow read: if request.auth != null;
+      
+      // Allow administrators to write screenshots
+      // In a production app, you might want to restrict this further
+      allow write: if request.auth != null;
+    }
+    
+    // Allow users to read their own admin document
     match /admins/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if false;  // Admin roles should be managed through Firebase Console
     }
   }
 }

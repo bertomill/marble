@@ -3,23 +3,26 @@
 export default function Home() {
   return (
     <main className="min-h-screen bg-black">
-      {/* Hero Section with modern design */}
-      <section className="relative overflow-hidden min-h-screen flex items-center">
-        {/* Modern background with animated elements */}
+      {/* Hero section with modern design */}
+      <section className="relative min-h-screen bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
-          
-          {/* Animated gradient meshes */}
-          <div className="absolute top-0 left-0 w-full h-full opacity-30">
-            <div className="absolute top-[5%] right-[10%] w-[50vw] h-[50vh] rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-[120px] animate-pulse-slow"></div>
-            <div className="absolute bottom-[10%] left-[5%] w-[40vw] h-[40vh] rounded-full bg-gradient-to-r from-indigo-500/20 to-pink-500/20 blur-[100px] animate-pulse-slower"></div>
-            <div className="absolute top-[40%] left-[30%] w-[30vw] h-[30vh] rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 blur-[80px] animate-float"></div>
-          </div>
+          {/* Video background */}
+          <video 
+            className="absolute w-full h-full object-cover opacity-60 video-smooth"
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            style={{ 
+              transform: 'scale(1.1)'
+            }}
+          >
+            <source src="/videos/limestone_bg.mp4" type="video/mp4" />
+          </video>
           
           {/* Grid pattern overlay */}
           <div 
-            className="absolute inset-0 opacity-10"
+            className="absolute inset-0 opacity-10 z-10"
             style={{
               backgroundImage: `
                 linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
@@ -29,19 +32,6 @@ export default function Home() {
             }}
           ></div>
           
-          {/* Subtle noise texture */}
-          <div 
-            className="absolute inset-0 opacity-20 mix-blend-overlay"
-            style={{
-              backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
-            }}
-          ></div>
-          
-          {/* Floating design elements */}
-          <div className="absolute top-[15%] right-[15%] w-[150px] h-[150px] border border-white/10 rounded-full opacity-20 animate-float-slow"></div>
-          <div className="absolute bottom-[20%] left-[10%] w-[100px] h-[100px] border border-white/10 rounded-full opacity-20 animate-float-slower"></div>
-          <div className="absolute top-[30%] left-[20%] w-[80px] h-[80px] border border-white/10 rounded-full opacity-20 animate-float"></div>
-          
           {/* Radial gradient overlay */}
           <div className="absolute inset-0 bg-radial-gradient"></div>
         </div>
@@ -49,7 +39,7 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10 pt-32">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
-              The future is yours <span className="text-white">@SiteStack</span>
+              The future is yours <span className="text-white">@Marble</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mt-6 max-w-2xl">
               Build better websites inspired by your industry&apos;s top performers. Analyze, learn, and create.
@@ -80,7 +70,7 @@ export default function Home() {
       <section className="py-20 bg-[#f5f5f0]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900">How SiteStack Works</h2>
+            <h2 className="text-4xl font-bold text-gray-900">How Marble Works</h2>
             <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
               Our AI-powered platform analyzes top websites in your industry to help you build a site that stands out.
             </p>
@@ -202,7 +192,7 @@ export default function Home() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl font-bold text-white mb-6">Ready to build your next-generation website?</h2>
             <p className="text-xl text-gray-300 mb-10">
-              Join thousands of businesses that use SiteStack to create websites that convert visitors into customers.
+              Join thousands of businesses that use Marble to create websites that convert visitors into customers.
             </p>
             <a 
               href="/login?redirect=%2Fdashboard" 
@@ -222,7 +212,7 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-8 md:mb-0">
-              <h3 className="text-2xl font-bold text-white mb-4">SiteStack</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">Marble</h3>
               <p className="max-w-xs">Building better websites inspired by the best in your industry.</p>
             </div>
             
@@ -259,7 +249,7 @@ export default function Home() {
           </div>
           
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p> {new Date().getFullYear()} SiteStack. All rights reserved.</p>
+            <p> {new Date().getFullYear()} Marble. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white transition">
                 <span className="sr-only">Twitter</span>

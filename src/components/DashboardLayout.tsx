@@ -16,16 +16,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="flex bg-[#121016] min-h-screen">
+    <div className="flex bg-[#121016] min-h-screen overflow-hidden">
       {/* Sidebar */}
       <Sidebar onToggle={handleSidebarToggle} />
       
       {/* Main Content Area - adjusts based on sidebar state with a smooth transition */}
       <main 
-        className={`flex-1 transition-all duration-300 ease-in-out w-full`}
+        className="flex-grow transition-all duration-300 ease-in-out overflow-x-hidden"
         style={{ marginLeft: sidebarCollapsed ? '4rem' : '16rem' }} 
       >
-        <div className="w-full h-full">
+        <div className="h-full w-full">
           {children}
         </div>
       </main>

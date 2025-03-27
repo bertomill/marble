@@ -116,12 +116,24 @@ export default function MinimalAnalysisPage() {
   const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [activeTab, setActiveTab] = useState<string>("overview");
+  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
   
   // Load data on client-side only.
   useEffect(() => {
     const fetchCompetitors = async () => {
       try {
         setIsLoading(true);
+        
+        // Start progress animation
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 2;
+          if (progress > 95) {
+            progress = 95; // Cap at 95% until actually complete
+            clearInterval(progressInterval);
+          }
+          setAnalysisProgress(Math.min(Math.round(progress), 95));
+        }, 1000);
         
         // Get business info from session storage.
         let businessInfo: Record<string, string | string[]> = {};
@@ -210,6 +222,8 @@ export default function MinimalAnalysisPage() {
         
         setCompetitors(formattedCompetitors);
         setIsLoading(false);
+        setAnalysisProgress(100);
+        clearInterval(progressInterval);
         
         // Start polling for analysis status
         startPolling(formattedCompetitors);
@@ -322,8 +336,25 @@ export default function MinimalAnalysisPage() {
           {isLoading ? (
             <div className="text-center py-12">
               <div className="flex flex-col items-center gap-4">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
-                <p className="text-neutral-300">Finding and analyzing competitors...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+                <h3 className="text-xl font-medium text-white">Your app is being analyzed...</h3>
+                <p className="text-neutral-300">We're researching top competitors in your industry</p>
+                
+                {/* Progress bar */}
+                <div className="w-full max-w-md mt-4 mb-2">
+                  <div className="w-full bg-[#1e1a36] rounded-full h-2.5">
+                    <div 
+                      className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" 
+                      style={{ width: `${analysisProgress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-neutral-400 text-sm mt-2">{analysisProgress}% complete</p>
+                </div>
+                
+                <div className="mt-2 text-sm text-neutral-400">
+                  <p>This may take 1-2 minutes to complete</p>
+                  <p className="mt-2">Feel free to continue browsing the app. We'll notify you when it's ready!</p>
+                </div>
               </div>
             </div>
           ) : error ? (

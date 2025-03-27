@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SiteStack - Better Websites Inspired by the Best",
-  description: "SiteStack analyzes top websites in your industry and creates a custom site that incorporates their best design patterns and features.",
+  title: "Marble - Better Websites Inspired by the Best",
+  description: "Marble analyzes top websites in your industry and creates a custom site that incorporates their best design patterns and features.",
 };
 
 export default function RootLayout({

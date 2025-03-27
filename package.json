@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "backend:competitor": "python backend/competitor_analyzer.py",
-    "dev:all": "concurrently \"npm run dev\" \"npm run backend:competitor\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run backend:competitor\"",
+    "explore-db": "node scripts/explore-firestore.js",
+    "check-projects": "node scripts/check-projects.js",
+    "fix-projects": "node scripts/fix-missing-userids.js",
+    "create-test": "node scripts/create-test-project.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.2",
@@ -21,16 +25,18 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "firebase": "^11.5.0",
+    "firebase": "^9.22.0",
     "lucide-react": "^0.484.0",
     "next": "15.2.4",
     "next-auth": "^4.24.11",
-    "openai": "^4.89.0",
+    "openai": "^4.89.1",
+    "puppeteer": "^24.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.0.2",
-    "tw-animate-css": "^1.2.4"
+    "tw-animate-css": "^1.2.4",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -41,6 +47,7 @@
     "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "firebase-admin": "^13.2.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

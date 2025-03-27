@@ -60,7 +60,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
     <div className={`${collapsed ? 'w-16' : 'w-64'} bg-[#1a1625] min-h-screen border-r border-[#352f57] fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-20`}>
       {/* Logo and Toggle Button */}
       <div className="p-5 flex items-center justify-between">
-        {!collapsed && <span className="text-white text-xl font-bold">SiteStack</span>}
+        {!collapsed && <span className="text-white text-xl font-bold">Marble</span>}
         <button 
           onClick={toggleCollapse} 
           className="text-gray-300 hover:text-white transition-colors ml-auto"
