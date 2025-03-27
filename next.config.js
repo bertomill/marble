@@ -8,7 +8,7 @@ const nextConfig = {
   // Add experimental configuration to handle the route group issue
   experimental: {
     // This helps with route group handling during build
-    serverComponentsExternalPackages: [],
+    serverExternalPackages: [],
   },
   // Add output configuration for better build handling
   output: 'standalone',

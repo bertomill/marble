@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Screenshot, getScreenshotById } from '@/utils/firebase/screenshots';
+import { Screenshot } from '@/types/Screenshot';
+import { getScreenshotById } from '@/utils/firebase/screenshots';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ScreenshotDetailPage() {
