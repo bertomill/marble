@@ -6,6 +6,7 @@ import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/
 import { PlusIcon } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import Sidebar from '@/components/Sidebar';
 
 // Project type definition
 interface Project {
@@ -27,6 +28,7 @@ export default function ProjectsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth(); // Get authenticated user from context
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Fetch user projects from Firestore
   useEffect(() => {
@@ -130,110 +132,122 @@ export default function ProjectsPage() {
     });
   };
 
+  const handleSidebarToggle = (collapsed: boolean) => {
+    setSidebarCollapsed(collapsed);
+  };
+
   return (
-    <div className="p-6 sm:p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Your Projects</h1>
-        <Link href="/dashboard/new-site">
-          <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 transition-colors">
-            <PlusIcon className="h-4 w-4" />
-            New Project
-          </button>
-        </Link>
-      </div>
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar */}
+      <Sidebar onToggle={handleSidebarToggle} />
+      
+      {/* Main Content */}
+      <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <div className="p-6 sm:p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Your Projects</h1>
+            <Link href="/dashboard/new-site">
+              <button className="px-4 py-2 bg-marble text-black rounded-lg flex items-center gap-2 transition-colors hover:bg-marble-dark">
+                <PlusIcon className="h-4 w-4" />
+                New Project
+              </button>
+            </Link>
+          </div>
 
-      {!user ? (
-        <div className="mt-8 border rounded-lg p-6 text-center">
-          <h2 className="text-xl font-bold mb-2">Please log in</h2>
-          <p className="text-gray-500 mb-6">
-            You need to be logged in to view and manage your projects.
-          </p>
-          <Link href="/login">
-            <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg mx-auto transition-colors">
-              Log In
-            </button>
-          </Link>
-        </div>
-      ) : (
-        <>
-          {error && (
-            <div className="mb-8 p-4 border border-red-300 bg-red-50 text-red-600 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="space-y-4">
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <caption className="caption-bottom mt-4 text-sm text-gray-500">
-                  A list of your projects.
-                </caption>
-                <thead>
-                  <tr className="border-b">
-                    <th className="py-3 px-4 text-left font-semibold w-[300px]">Name</th>
-                    <th className="py-3 px-4 text-left font-semibold">URL</th>
-                    <th className="py-3 px-4 text-left font-semibold">Visibility</th>
-                    <th className="py-3 px-4 text-left font-semibold">Created</th>
-                    <th className="py-3 px-4 text-right font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {projects.map((project) => (
-                    <tr key={project.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium">{project.name}</td>
-                      <td className="py-3 px-4">
-                        {project.url ? (
-                          <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center">
-                            <span className="mr-1">🌐</span>
-                            {project.url}
-                          </a>
-                        ) : (
-                          <span className="text-gray-500 italic">Not published</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center">
-                          <span className="mr-1">{project.visibility === 'Private' ? '🔒' : '🌐'}</span>
-                          {project.visibility}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{formatDate(project.createdAt)}</td>
-                      <td className="py-3 px-4 text-right">
-                        <Link href={`/dashboard/project/${project.id}`}>
-                          <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                            Manage
-                          </button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {!isLoading && projects.length === 0 && (
+          {!user ? (
             <div className="mt-8 border rounded-lg p-6 text-center">
-              <h2 className="text-xl font-bold mb-2">No projects yet</h2>
+              <h2 className="text-xl font-bold mb-2">Please log in</h2>
               <p className="text-gray-500 mb-6">
-                Create your first website project to get started.
+                You need to be logged in to view and manage your projects.
               </p>
-              <Link href="/dashboard/new-site">
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 mx-auto transition-colors">
-                  <PlusIcon className="h-4 w-4" />
-                  Create Project
+              <Link href="/login">
+                <button className="px-4 py-2 bg-marble text-black rounded-lg mx-auto transition-colors hover:bg-marble-dark">
+                  Log In
                 </button>
               </Link>
             </div>
+          ) : (
+            <>
+              {error && (
+                <div className="mb-8 p-4 border border-red-300 bg-red-50 text-red-600 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              {isLoading ? (
+                <div className="space-y-4">
+                  <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto bg-card rounded-lg shadow-sm border border-border">
+                  <table className="w-full border-collapse">
+                    <caption className="caption-bottom mt-4 text-sm text-gray-500">
+                      A list of your projects.
+                    </caption>
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="py-3 px-4 text-left font-semibold w-[300px]">Name</th>
+                        <th className="py-3 px-4 text-left font-semibold">URL</th>
+                        <th className="py-3 px-4 text-left font-semibold">Visibility</th>
+                        <th className="py-3 px-4 text-left font-semibold">Created</th>
+                        <th className="py-3 px-4 text-right font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {projects.map((project) => (
+                        <tr key={project.id} className="border-b border-border hover:bg-accent transition-colors">
+                          <td className="py-3 px-4 font-medium">{project.name}</td>
+                          <td className="py-3 px-4">
+                            {project.url ? (
+                              <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center">
+                                <span className="mr-1">🌐</span>
+                                {project.url}
+                              </a>
+                            ) : (
+                              <span className="text-gray-500 italic">Not published</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center">
+                              <span className="mr-1">{project.visibility === 'Private' ? '🔒' : '🌐'}</span>
+                              {project.visibility}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">{formatDate(project.createdAt)}</td>
+                          <td className="py-3 px-4 text-right">
+                            <Link href={`/dashboard/project/${project.id}`}>
+                              <button className="px-3 py-1 border border-border rounded text-sm hover:bg-accent-foreground hover:text-accent transition-colors">
+                                Manage
+                              </button>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {!isLoading && projects.length === 0 && (
+                <div className="mt-8 border rounded-lg p-6 text-center bg-card">
+                  <h2 className="text-xl font-bold mb-2">No projects yet</h2>
+                  <p className="text-gray-500 mb-6">
+                    Create your first website project to get started.
+                  </p>
+                  <Link href="/dashboard/new-site">
+                    <button className="px-4 py-2 bg-marble text-black rounded-lg flex items-center gap-2 mx-auto transition-colors hover:bg-marble-dark">
+                      <PlusIcon className="h-4 w-4" />
+                      Create Project
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 } 
