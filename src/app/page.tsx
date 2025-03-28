@@ -179,9 +179,10 @@ export default function Home() {
           <img 
             src="/images/random_shape_sketches.png" 
             alt="Geometric sketches" 
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 h-[90%] object-contain opacity-100"
+            className="absolute left-0 top-[35%] transform -translate-y-1/2 h-[85%] object-contain opacity-100"
             style={{ 
-              maxWidth: '40%'
+              maxWidth: '42%',
+              marginLeft: '-2%'
             }}
           />
         </div>
