@@ -58,6 +58,7 @@ export default function OnboardingPage() {
   const [recommendedWebsites, setRecommendedWebsites] = useState<Website[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   
   // Set isClient to true when component mounts on client
   useEffect(() => {
@@ -68,6 +69,32 @@ export default function OnboardingPage() {
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+  
+  // Ensure video plays properly
+  useEffect(() => {
+    if (isClient) {
+      const videoElement = document.querySelector('video');
+      if (videoElement) {
+        const handleLoadedData = () => {
+          setVideoLoaded(true);
+          videoElement.play().catch(error => {
+            console.error('Error playing video:', error);
+          });
+        };
+        
+        videoElement.addEventListener('loadeddata', handleLoadedData);
+        
+        // If video is already loaded
+        if (videoElement.readyState >= 3) {
+          handleLoadedData();
+        }
+        
+        return () => {
+          videoElement.removeEventListener('loadeddata', handleLoadedData);
+        };
+      }
+    }
+  }, [isClient]);
   
   // Check authentication
   useEffect(() => {
@@ -165,14 +192,22 @@ export default function OnboardingPage() {
   
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
-        style={{ 
-          backgroundImage: 'url("/images/marble-bg.jpg")',
-          filter: 'brightness(0.7)'
-        }}
-      ></div>
+      {/* Video Background */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className={`absolute w-full h-full object-cover video-smooth ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ objectFit: 'cover', transition: 'opacity 0.5s ease-in-out' }}
+        >
+          <source src="/marble_ball.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Overlay to darken the video */}
+        <div className="absolute inset-0 bg-black opacity-40"></div>
+      </div>
       
       {/* Loading state */}
       {isLoading && (

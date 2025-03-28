@@ -1,19 +1,55 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 export default function Home() {
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  
+  // Ensure video plays properly
+  useEffect(() => {
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+      const handleLoadedData = () => {
+        setVideoLoaded(true);
+        videoElement.play().catch(error => {
+          console.error('Error playing video:', error);
+        });
+      };
+      
+      videoElement.addEventListener('loadeddata', handleLoadedData);
+      
+      // If video is already loaded
+      if (videoElement.readyState >= 3) {
+        handleLoadedData();
+      }
+      
+      return () => {
+        videoElement.removeEventListener('loadeddata', handleLoadedData);
+      };
+    }
+  }, []);
+  
   return (
     <main className="min-h-screen bg-black">
       {/* Hero section with modern design */}
       <section className="relative min-h-screen bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {/* Static Background Image (replacing video for better mobile compatibility) */}
-          <div 
-            className="absolute w-full h-full bg-center bg-cover opacity-60"
-            style={{ 
-              backgroundImage: 'url("/images/dark-hero-bg.jpg")',
-              transform: 'scale(1.05)'
-            }}
-          ></div>
+          {/* Video Background */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className={`absolute w-full h-full object-cover video-smooth ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ objectFit: 'cover', transition: 'opacity 0.5s ease-in-out' }}
+            >
+              <source src="/limestone_bg.mp4" type="video/mp4" />
+            </video>
+            
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black opacity-40"></div>
+          </div>
           
           {/* Grid pattern overlay */}
           <div 

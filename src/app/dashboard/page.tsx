@@ -162,13 +162,13 @@ export default function Dashboard() {
             <button 
               onClick={handleAddTestProject}
               disabled={isAddingTestProject} 
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-secondary hover:bg-accent text-secondary-foreground rounded-lg flex items-center gap-2 transition-colors"
             >
               {isAddingTestProject ? 'Adding...' : 'Add Test Project'}
             </button>
           )}
           <Link href="/dashboard/new-site">
-            <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 transition-colors">
+            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-primary-foreground rounded-lg flex items-center gap-2 transition-colors">
               <PlusIcon className="h-4 w-4" />
               New Project
             </button>
@@ -179,11 +179,11 @@ export default function Dashboard() {
       {!user ? (
         <div className="mt-8 border rounded-lg p-6 text-center">
           <h2 className="text-xl font-bold mb-2">Please log in</h2>
-          <p className="text-gray-500 mb-6">
+          <p className="text-muted-foreground mb-6">
             You need to be logged in to view and manage your projects.
           </p>
           <Link href="/login">
-            <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg mx-auto transition-colors">
+            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-primary-foreground rounded-lg mx-auto transition-colors">
               Log In
             </button>
           </Link>
@@ -191,25 +191,25 @@ export default function Dashboard() {
       ) : (
         <>
           {error && (
-            <div className="mb-8 p-4 border border-red-300 bg-red-50 text-red-600 rounded-lg">
+            <div className="mb-8 p-4 border border-destructive/30 bg-destructive/10 text-destructive rounded-lg">
               {error}
             </div>
           )}
 
           {isLoading ? (
             <div className="space-y-4">
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-12 w-full bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-12 w-full bg-muted animate-pulse rounded"></div>
+              <div className="h-12 w-full bg-muted animate-pulse rounded"></div>
+              <div className="h-12 w-full bg-muted animate-pulse rounded"></div>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <caption className="caption-bottom mt-4 text-sm text-gray-500">
+                <caption className="caption-bottom mt-4 text-sm text-muted-foreground">
                   A list of your projects.
                 </caption>
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b border-border">
                     <th className="py-3 px-4 text-left font-semibold w-[300px]">Name</th>
                     <th className="py-3 px-4 text-left font-semibold">URL</th>
                     <th className="py-3 px-4 text-left font-semibold">Visibility</th>
@@ -219,16 +219,16 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {projects.map((project) => (
-                    <tr key={project.id} className="border-b hover:bg-gray-50">
+                    <tr key={project.id} className="border-b border-border hover:bg-muted/30">
                       <td className="py-3 px-4 font-medium">{project.name}</td>
                       <td className="py-3 px-4">
                         {project.url ? (
-                          <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center">
+                          <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center">
                             <span className="mr-1">🌐</span>
                             {project.url}
                           </a>
                         ) : (
-                          <span className="text-gray-500 italic">Not published</span>
+                          <span className="text-muted-foreground italic">Not published</span>
                         )}
                       </td>
                       <td className="py-3 px-4">
@@ -240,7 +240,7 @@ export default function Dashboard() {
                       <td className="py-3 px-4">{formatDate(project.createdAt)}</td>
                       <td className="py-3 px-4 text-right">
                         <Link href={`/dashboard/project/${project.id}`}>
-                          <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                          <button className="px-3 py-1 border border-border rounded text-sm hover:bg-muted/50">
                             Manage
                           </button>
                         </Link>
@@ -252,15 +252,14 @@ export default function Dashboard() {
             </div>
           )}
 
-          {!isLoading && projects.length === 0 && (
-            <div className="mt-8 border rounded-lg p-6 text-center">
+          {projects.length === 0 && !isLoading && !error && (
+            <div className="mt-8 border border-border rounded-lg p-6 text-center">
               <h2 className="text-xl font-bold mb-2">No projects yet</h2>
-              <p className="text-gray-500 mb-6">
-                Create your first website project to get started.
+              <p className="text-muted-foreground mb-6">
+                Get started by creating your first project
               </p>
               <Link href="/dashboard/new-site">
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2 mx-auto transition-colors">
-                  <PlusIcon className="h-4 w-4" />
+                <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-primary-foreground rounded-lg mx-auto transition-colors">
                   Create Project
                 </button>
               </Link>

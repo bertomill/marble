@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +12,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -57,13 +59,13 @@ export default function Sidebar({ onToggle }: SidebarProps) {
   };
 
   return (
-    <div className={`${collapsed ? 'w-16' : 'w-64'} bg-[#1a1625] min-h-screen border-r border-[#352f57] fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-20`}>
+    <div className={`${collapsed ? 'w-16' : 'w-64'} bg-sidebar min-h-screen border-r border-sidebar-border fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-20`}>
       {/* Logo and Toggle Button */}
       <div className="p-5 flex items-center justify-between">
-        {!collapsed && <span className="text-white text-xl font-bold">Marble</span>}
+        {!collapsed && <span className="text-sidebar-foreground text-xl font-bold">Marble</span>}
         <button 
           onClick={toggleCollapse} 
-          className="text-gray-300 hover:text-white transition-colors ml-auto"
+          className="text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors ml-auto"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
@@ -84,7 +86,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
       <nav className="mt-6">
         <Link 
           href="/dashboard" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,7 +98,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         
         <Link 
           href="/search" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,7 +110,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         
         <Link 
           href="/projects" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,7 +122,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         
         <Link 
           href="/screens" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,7 +134,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         
         <Link 
           href="/dashboard/components" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,7 +146,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         
         <Link 
           href="/dashboard/discover" 
-          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-gray-300 hover:bg-[#2a2545] hover:text-white transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center px-3' : 'px-5'} py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <div className={collapsed ? '' : 'mr-3'}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -161,18 +163,18 @@ export default function Sidebar({ onToggle }: SidebarProps) {
           <div className={`relative`} ref={profileMenuRef}>
             <button 
               onClick={toggleProfileMenu}
-              className={`flex items-center w-full ${collapsed ? 'justify-center' : ''} hover:bg-[#2a2545] rounded-lg p-2 transition-colors`}
+              className={`flex items-center w-full ${collapsed ? 'justify-center' : ''} hover:bg-sidebar-accent rounded-lg p-2 transition-colors`}
               aria-label="Toggle user menu"
             >
-              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm">
+              <div className="w-8 h-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm">
                 {user.email?.charAt(0).toUpperCase() || 'U'}
               </div>
               {!collapsed && (
                 <>
-                  <div className="ml-3 flex-grow text-sm text-white truncate text-left">
+                  <div className="ml-3 flex-grow text-sm text-sidebar-foreground truncate text-left">
                     {user.email}
                   </div>
-                  <div className="text-gray-300">
+                  <div className="text-sidebar-foreground">
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
                       className={`h-4 w-4 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} 
@@ -188,16 +190,35 @@ export default function Sidebar({ onToggle }: SidebarProps) {
             
             {/* Profile Dropdown Menu */}
             {showProfileMenu && !collapsed && (
-              <div className="absolute bottom-full mb-2 left-0 w-full bg-[#2a2545] rounded-lg shadow-lg overflow-hidden border border-[#352f57]">
+              <div className="absolute bottom-full mb-2 left-0 w-full bg-sidebar-accent rounded-lg shadow-lg overflow-hidden border border-sidebar-border">
                 <Link 
                   href="/profile" 
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#352f57] hover:text-white transition-colors"
+                  className="block w-full text-left px-4 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                 >
                   Profile
                 </Link>
                 <button 
+                  onClick={toggleTheme}
+                  className="flex items-center justify-between w-full text-left px-4 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                >
+                  <span>Theme: {theme === 'dark' ? 'Dark' : 'Light'}</span>
+                  <span className="ml-2">
+                    {theme === 'dark' ? (
+                      // Moon icon for dark mode
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                    ) : (
+                      // Sun icon for light mode
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+                <button 
                   onClick={handleSignOut}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#352f57] hover:text-white transition-colors"
+                  className="block w-full text-left px-4 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                 >
                   Sign out
                 </button>
@@ -206,19 +227,36 @@ export default function Sidebar({ onToggle }: SidebarProps) {
             
             {/* Collapsed menu (shows on icon click when collapsed) */}
             {showProfileMenu && collapsed && (
-              <div className="absolute bottom-full mb-2 left-0 w-32 bg-[#2a2545] rounded-lg shadow-lg overflow-hidden border border-[#352f57]">
-                <div className="px-3 py-2 border-b border-[#352f57] text-xs text-gray-400 truncate">
+              <div className="absolute bottom-full mb-2 left-0 w-32 bg-sidebar-accent rounded-lg shadow-lg overflow-hidden border border-sidebar-border">
+                <div className="px-3 py-2 border-b border-sidebar-border text-xs text-sidebar-foreground truncate">
                   {user.email}
                 </div>
                 <Link 
                   href="/profile" 
-                  className="block w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-[#352f57] hover:text-white transition-colors"
+                  className="block w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                 >
                   Profile
                 </Link>
                 <button 
+                  onClick={toggleTheme}
+                  className="flex items-center justify-between w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                >
+                  <span>Theme</span>
+                  <span className="ml-2">
+                    {theme === 'dark' ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+                <button 
                   onClick={handleSignOut}
-                  className="block w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-[#352f57] hover:text-white transition-colors"
+                  className="block w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                 >
                   Sign out
                 </button>
@@ -228,7 +266,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         ) : (
           <Link 
             href="/login" 
-            className={`block ${collapsed ? 'w-10 h-10 rounded-full mx-auto flex items-center justify-center' : 'w-full text-center py-2'} bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors`}
+            className={`block ${collapsed ? 'w-10 h-10 rounded-full mx-auto flex items-center justify-center' : 'w-full text-center py-2'} bg-sidebar-primary text-sidebar-primary-foreground rounded-lg hover:bg-primary-dark transition-colors`}
           >
             {collapsed ? 'L' : 'Log in'}
           </Link>

@@ -1,18 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-export default function LoginForm() {
+interface LoginFormProps {
+  showSignupInitially?: boolean;
+}
+
+export default function LoginForm({ showSignupInitially = false }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, googleSignIn } = useAuth();
+  const [isLoginMode, setIsLoginMode] = useState(!showSignupInitially);
+  const { login, signup, googleSignIn } = useAuth();
   const router = useRouter();
+  
+  // Set initial mode based on prop
+  useEffect(() => {
+    setIsLoginMode(!showSignupInitially);
+  }, [showSignupInitially]);
+
+  const toggleMode = () => {
+    setIsLoginMode(!isLoginMode);
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +38,22 @@ export default function LoginForm() {
       return;
     }
     
+    if (!isLoginMode && password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
     try {
       setError('');
       setLoading(true);
-      await login(email, password);
+      
+      if (isLoginMode) {
+        // Login flow
+        await login(email, password);
+      } else {
+        // Signup flow
+        await signup(email, password);
+      }
       
       // Check for redirect parameter in URL
       const urlParams = new URLSearchParams(window.location.search);
@@ -38,7 +66,9 @@ export default function LoginForm() {
         router.push('/dashboard');
       }
     } catch (error) {
-      setError('Failed to log in. Please check your credentials.');
+      setError(isLoginMode 
+        ? 'Failed to log in. Please check your credentials.' 
+        : 'Failed to create an account');
       console.error(error);
     } finally {
       setLoading(false);
@@ -70,7 +100,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="bg-black/60 backdrop-blur-xl p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-800 animate-fadeIn">
+    <div className="bg-black/40 backdrop-blur-md p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-800/70 animate-fadeIn">
       <div className="flex items-center justify-center mb-6">
         <Image
           src="/marble-logo.svg"
@@ -81,7 +111,9 @@ export default function LoginForm() {
         />
       </div>
       
-      <h2 className="text-2xl font-medium text-white text-center mb-8">Login to Marble</h2>
+      <h2 className="text-2xl font-medium text-white text-center mb-8">
+        {isLoginMode ? 'Login to Marble' : 'Create Your Account'}
+      </h2>
       
       {error && (
         <div className="bg-red-900/30 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">
@@ -99,7 +131,7 @@ export default function LoginForm() {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:ring-1 focus:ring-white focus:border-white focus:outline-none shadow-sm"
+            className="w-full px-4 py-3 bg-gray-900/30 border border-gray-800/70 rounded-lg text-white focus:ring-1 focus:ring-white focus:border-white focus:outline-none shadow-sm"
             required
           />
         </div>
@@ -114,7 +146,7 @@ export default function LoginForm() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-900/50 border border-gray-800 rounded-lg text-white focus:ring-1 focus:ring-white focus:border-white focus:outline-none shadow-sm"
+              className="w-full px-4 py-3 bg-gray-900/30 border border-gray-800/70 rounded-lg text-white focus:ring-1 focus:ring-white focus:border-white focus:outline-none shadow-sm"
               required
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -126,25 +158,45 @@ export default function LoginForm() {
           </div>
         </div>
         
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-white focus:ring-white border-gray-700 rounded"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-              Remember me
+        {!isLoginMode && (
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+              Confirm Password
             </label>
+            <div className="relative">
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-900/30 border border-gray-800/70 rounded-lg text-white focus:ring-1 focus:ring-white focus:border-white focus:outline-none shadow-sm"
+                required
+              />
+            </div>
           </div>
-          
-          <div className="text-sm">
-            <Link href="/forgot-password" className="font-medium text-gray-300 hover:text-white">
-              Forgot your password?
-            </Link>
+        )}
+        
+        {isLoginMode && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-white focus:ring-white border-gray-700 rounded"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
+                Remember me
+              </label>
+            </div>
+            
+            <div className="text-sm">
+              <Link href="/forgot-password" className="font-medium text-gray-300 hover:text-white">
+                Forgot your password?
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
         
         <div>
           <button
@@ -159,9 +211,9 @@ export default function LoginForm() {
             {loading ? (
               <div className="flex justify-center items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
-                <span className="ml-2">Logging in...</span>
+                <span className="ml-2">{isLoginMode ? 'Logging in...' : 'Creating Account...'}</span>
               </div>
-            ) : 'Continue'}
+            ) : isLoginMode ? 'Continue' : 'Create Account'}
           </button>
         </div>
       </form>
@@ -172,7 +224,7 @@ export default function LoginForm() {
             <div className="w-full border-t border-gray-800"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-black/60 text-gray-400">Or continue with</span>
+            <span className="px-2 bg-black/40 text-gray-400">Or continue with</span>
           </div>
         </div>
         
@@ -180,7 +232,7 @@ export default function LoginForm() {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-gray-800 rounded-lg shadow-sm bg-gray-900/50 text-base font-medium text-gray-300 hover:bg-gray-800 transition-colors"
+            className="w-full flex justify-center items-center py-3 px-4 border border-gray-800/70 rounded-lg shadow-sm bg-gray-900/30 text-base font-medium text-gray-300 hover:bg-gray-800/50 transition-colors"
           >
             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -188,7 +240,7 @@ export default function LoginForm() {
                 fill="#4285F4"
               />
             </svg>
-            Sign in with Google
+            {isLoginMode ? 'Sign in with Google' : 'Sign up with Google'}
           </button>
         </div>
       </div>
@@ -203,10 +255,13 @@ export default function LoginForm() {
       </div>
       
       <p className="mt-6 text-center text-sm text-gray-400">
-        Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-medium text-gray-300 hover:text-white">
-          Sign up
-        </Link>
+        {isLoginMode ? "Don't have an account? " : "Already have an account? "}
+        <button 
+          onClick={toggleMode} 
+          className="font-medium text-gray-300 hover:text-white"
+        >
+          {isLoginMode ? 'Sign up' : 'Log in'}
+        </button>
       </p>
     </div>
   );
