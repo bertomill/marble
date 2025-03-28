@@ -62,10 +62,19 @@ export default function Sidebar({ onToggle }: SidebarProps) {
     <div className={`${collapsed ? 'w-16' : 'w-64'} bg-sidebar min-h-screen border-r border-sidebar-border fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-20`}>
       {/* Logo and Toggle Button */}
       <div className="p-5 flex items-center justify-between">
-        {!collapsed && <span className="text-sidebar-foreground text-xl font-bold">Marble</span>}
+        {collapsed ? (
+          <div className="flex-1 flex justify-center">
+            <img src="/favicon.svg" alt="Marble Logo" className="h-8 w-8" />
+          </div>
+        ) : (
+          <div className="flex items-center">
+            <img src="/favicon.svg" alt="Marble Logo" className="h-7 w-7 mr-2" />
+            <span className="text-sidebar-foreground text-xl font-bold">Marble</span>
+          </div>
+        )}
         <button 
           onClick={toggleCollapse} 
-          className="text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors ml-auto"
+          className={`text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors ${collapsed ? 'absolute right-5' : 'ml-auto'}`}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
