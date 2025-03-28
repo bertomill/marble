@@ -26,6 +26,11 @@
   --ring: #a0a0a0;
   --radius: 0.625rem;
   
+  /* Marble accent colors */
+  --marble: #C8C3BC;
+  --marble-light: #D8D4CE;
+  --marble-dark: #B8B3AC;
+  
   /* Dashboard specific colors */
   --sidebar: #ffffff;
   --sidebar-foreground: #333333;
@@ -64,6 +69,9 @@
   --color-primary-dark: var(--primary-dark);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-marble: var(--marble);
+  --color-marble-light: var(--marble-light);
+  --color-marble-dark: var(--marble-dark);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

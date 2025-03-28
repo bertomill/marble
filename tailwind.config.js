@@ -6,6 +6,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        marble: {
+          DEFAULT: '#C8C3BC',
+          light: '#D8D4CE',
+          dark: '#B8B3AC',
+        },
+      },
       animation: {
         'float-slow': 'float 8s ease-in-out infinite',
         'float-medium': 'float 6s ease-in-out infinite',

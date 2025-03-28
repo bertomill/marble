@@ -5,11 +5,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
+// Define the user type
+interface UserProfile {
+  id: string;
+  uid: string;
+  name: string;
+  username: string;
+  photoURL?: string;
+}
+
 export default function SearchPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [users, setUsers] = useState([]);
-  const [recommendedUsers, setRecommendedUsers] = useState([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [recommendedUsers, setRecommendedUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch all users except the current user
@@ -23,7 +32,7 @@ export default function SearchPage() {
         const q = query(usersRef, where('uid', '!=', user.uid));
         const querySnapshot = await getDocs(q);
         
-        const fetchedUsers = [];
+        const fetchedUsers: UserProfile[] = [];
         querySnapshot.forEach((doc) => {
           const userData = doc.data();
           // Only add users that have both name and username
