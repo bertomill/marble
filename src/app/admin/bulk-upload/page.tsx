@@ -417,21 +417,15 @@ export default function BulkUploadPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 relative">
-      {/* Video background */}
+      {/* Static background image (replacing video for better mobile compatibility) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <video 
-          className="absolute w-full h-full object-cover opacity-60 video-smooth"
-          autoPlay 
-          loop 
-          muted 
-          playsInline
+        <div 
+          className="absolute w-full h-full bg-center bg-cover opacity-60"
           style={{ 
-            transform: 'scale(1.1)', 
-            animationPlayState: 'running' 
+            backgroundImage: 'url("/images/dark-hero-bg.jpg")',
+            transform: 'scale(1.05)'
           }}
-        >
-          <source src="/limestone_bg.mp4" type="video/mp4" />
-        </video>
+        ></div>
         
         {/* Grid pattern overlay */}
         <div 

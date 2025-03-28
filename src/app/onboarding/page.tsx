@@ -165,17 +165,14 @@ export default function OnboardingPage() {
   
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
-        style={{ filter: 'brightness(0.7)' }}
-      >
-        <source src="/marble_ball.mp4" type="video/mp4" />
-      </video>
+      {/* Background Image */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
+        style={{ 
+          backgroundImage: 'url("/images/marble-bg.jpg")',
+          filter: 'brightness(0.7)'
+        }}
+      ></div>
       
       {/* Loading state */}
       {isLoading && (
@@ -197,7 +194,7 @@ export default function OnboardingPage() {
                 <p className="text-gray-400 text-center text-sm mb-8">Begin by creating an account</p>
                 
                 <h2 className="text-lg font-medium text-white mb-4">Select your interests</h2>
-                <p className="text-gray-400 text-sm mb-6">We'll recommend top websites based on the topics you select.</p>
+                <p className="text-gray-400 text-sm mb-6">We&apos;ll recommend top websites based on the topics you select.</p>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-8">
                   {INTEREST_CATEGORIES.map((interest) => (

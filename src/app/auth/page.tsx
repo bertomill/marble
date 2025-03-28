@@ -8,17 +8,14 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center">
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
-        style={{ filter: 'brightness(0.7)' }}
-      >
-        <source src="/marble_ball.mp4" type="video/mp4" />
-      </video>
+      {/* Background Image */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
+        style={{ 
+          backgroundImage: 'url("/images/marble-bg.jpg")',
+          filter: 'brightness(0.7)'
+        }}
+      ></div>
 
       {/* Overlay with glass effect */}
       <div className="relative z-10 w-full max-w-md p-8 mx-4 rounded-2xl backdrop-blur-xl bg-white/10">
