@@ -25,6 +25,11 @@
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
+    
+    <!-- Clipping path to ensure lines stay within circle -->
+    <clipPath id="circleClip">
+      <circle cx="100" cy="100" r="88" />
+    </clipPath>
   </defs>
 
   <!-- Main sphere with shadow -->
@@ -32,13 +37,16 @@
     <!-- Base sphere -->
     <circle cx="100" cy="100" r="90" fill="url(#marbleGradient)" stroke="#d3d3d3" stroke-width="0.8" />
     
-    <!-- More organic, marble-like curved lines -->
-    <path d="M45,165 C60,150 70,130 85,115 S115,75 135,50 C145,38 160,28 170,25" fill="none" stroke="#333333" stroke-width="9" stroke-linecap="round" opacity="0.85" />
-    <path d="M25,140 C40,125 50,110 65,90 S95,45 115,30 C125,20 145,10 155,5" fill="none" stroke="#333333" stroke-width="9" stroke-linecap="round" opacity="0.85" />
-    
-    <!-- Small vein branches -->
-    <path d="M80,120 C85,115 95,110 100,108" fill="none" stroke="#333333" stroke-width="5" stroke-linecap="round" opacity="0.7" />
-    <path d="M60,100 C65,95 75,90 85,88" fill="none" stroke="#333333" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <!-- Lines container with clipping path -->
+    <g clip-path="url(#circleClip)">
+      <!-- More organic, marble-like curved lines - modified to stay inside circle -->
+      <path d="M50,160 C65,145 75,125 90,110 S115,75 130,55 C140,43 150,30 160,28" fill="none" stroke="#333333" stroke-width="9" stroke-linecap="round" opacity="0.85" />
+      <path d="M30,135 C45,120 55,105 70,85 S95,50 110,35 C120,25 135,15 145,12" fill="none" stroke="#333333" stroke-width="9" stroke-linecap="round" opacity="0.85" />
+      
+      <!-- Small vein branches -->
+      <path d="M80,120 C85,115 95,110 100,108" fill="none" stroke="#333333" stroke-width="5" stroke-linecap="round" opacity="0.7" />
+      <path d="M60,100 C65,95 75,90 85,88" fill="none" stroke="#333333" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    </g>
     
     <!-- Subtle highlight overlay -->
     <circle cx="100" cy="100" r="90" fill="url(#highlightGradient)" />
