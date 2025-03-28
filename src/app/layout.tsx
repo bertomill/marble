@@ -14,8 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Marble - Better Websites Inspired by the Best",
+  title: "Marble - Discover and share designs for your digital products",
   description: "Marble analyzes top websites in your industry and creates a custom site that incorporates their best design patterns and features.",
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({
