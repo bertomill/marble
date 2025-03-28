@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Definitions for gradients -->
+  <defs>
+    <!-- Simplified marble gradient -->
+    <linearGradient id="simpleMarble" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8f9fa" />
+      <stop offset="100%" stop-color="#adb5bd" />
+    </linearGradient>
+    
+    <!-- Single vein color -->
+    <linearGradient id="veinColor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4895ef" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#7209b7" stop-opacity="0.5" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main circle -->
+  <circle cx="100" cy="100" r="80" fill="url(#simpleMarble)" />
+  
+  <!-- Single distinctive marble vein -->
+  <path d="M40,100 Q70,70 100,90 T160,110" fill="none" stroke="url(#veinColor)" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Letter M icon embedded in the design -->
+  <path d="M70,120 L85,85 L100,120 L115,85 L130,120" fill="none" stroke="#495057" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</svg> 

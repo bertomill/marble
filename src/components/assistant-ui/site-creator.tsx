@@ -33,7 +33,7 @@ export const SiteCreator: FC<SiteCreatorProps> = ({ initialMessages = [] }) => {
             id: "1",
             type: "assistant",
             content:
-              "Hi there! I'll help you create your SiteStack website. Let's start with some basic information about your business.",
+              "Hi there! I'll help you design your Marble product. Let's start with some basic information about your business.",
           },
         ]
   );

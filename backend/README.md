@@ -1,6 +1,6 @@
-# SiteStack Backend API
+# Marble Backend API
 
-This is the backend API for SiteStack, providing color analysis, competitor research, and design assistance functionalities.
+This is the backend API for Marble, providing color analysis, competitor research, and design assistance functionalities.
 
 ## Features
 
@@ -76,7 +76,7 @@ The API will be available at http://localhost:8080
 
 ## OpenAI Web Search Integration
 
-SiteStack now uses OpenAI's web search capabilities to provide enhanced competitor analysis. This feature:
+Marble now uses OpenAI's web search capabilities to provide enhanced competitor analysis. This feature:
 
 1. Finds relevant competitors in your industry based on your business description
 2. Analyzes competitor websites to identify design patterns, strengths, weaknesses, and elements of inspiration

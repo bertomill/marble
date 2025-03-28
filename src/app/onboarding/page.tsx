@@ -136,11 +136,11 @@ export default function OnboardingPage() {
     }
   };
   
-  // SiteStack logo component
+  // Marble logo component
   const SiteStackLogo = () => (
     <div className="flex items-center justify-center mb-6">
       <div className="text-white text-3xl font-bold">
-        <span className="text-white">SiteStack</span>
+        <span className="text-white">Marble</span>
       </div>
     </div>
   );
@@ -178,7 +178,7 @@ export default function OnboardingPage() {
               <div className="p-8">
                 <SiteStackLogo />
                 
-                <h1 className="text-2xl font-medium text-white text-center mb-2">Welcome to SiteStack</h1>
+                <h1 className="text-2xl font-medium text-white text-center mb-2">Welcome to Marble</h1>
                 <p className="text-gray-400 text-center text-sm mb-8">Begin by creating an account</p>
                 
                 <h2 className="text-lg font-medium text-white mb-4">Select your interests</h2>

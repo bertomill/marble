@@ -16,8 +16,13 @@ export default function Home() {
             style={{ 
               transform: 'scale(1.1)'
             }}
+            onError={(e) => {
+              console.error('Error loading video:', e);
+            }}
           >
             <source src="/videos/limestone_bg.mp4" type="video/mp4" />
+            {/* Fallback message */}
+            Your browser does not support the video tag.
           </video>
           
           {/* Grid pattern overlay */}
@@ -39,10 +44,10 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10 pt-32">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
-              The future is yours <span className="text-white">@Marble</span>
+              Discover and share application designs <span className="text-white">@Marble</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mt-6 max-w-2xl">
-              Build better websites inspired by your industry&apos;s top performers. Analyze, learn, and create.
+              Join a community of leading designers and top performers. Analyze, learn, and create.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
