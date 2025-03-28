@@ -44,10 +44,10 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10 pt-32">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
-              Discover and share application designs <span className="text-white">@Marble</span>
+              Discover and share digital product designs <span className="text-white">@Marble</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mt-6 max-w-2xl">
-              Join a community of leading designers and top performers. Analyze, learn, and create.
+              Join a community of leading developers and designers building the future of software. Analyze, learn, and create.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
