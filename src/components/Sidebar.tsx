@@ -82,6 +82,9 @@ export default function Sidebar({ onToggle }: SidebarProps) {
         </button>
       </div>
       
+      {/* Horizontal divider below title */}
+      <div className="h-px bg-sidebar-border mx-3"></div>
+      
       {/* Navigation Links */}
       <nav className="mt-6">
         <Link 
@@ -159,6 +162,9 @@ export default function Sidebar({ onToggle }: SidebarProps) {
       
       {/* Bottom Section */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
+        {/* Horizontal divider above username */}
+        <div className="h-px bg-sidebar-border mx-0 mb-3"></div>
+        
         {user ? (
           <div className={`relative`} ref={profileMenuRef}>
             <button 

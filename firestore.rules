@@ -2,6 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users collection - users can create and manage their own user documents
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Projects collection - users can manage their own projects
     match /projects/{projectId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;

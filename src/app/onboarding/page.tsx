@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 // Available interests categories
 const INTEREST_CATEGORIES = [
@@ -59,6 +62,9 @@ export default function OnboardingPage() {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [username, setUsername] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   
   // Set isClient to true when component mounts on client
   useEffect(() => {
@@ -161,11 +167,63 @@ export default function OnboardingPage() {
     router.push('/dashboard');
   };
   
+  // Check if username is valid and available
+  const checkUsername = async (username: string) => {
+    if (!username) {
+      setUsernameError('Username is required');
+      return false;
+    }
+
+    // Username format validation
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      setUsernameError('Username must be 3-20 characters and can only contain letters, numbers, and underscores');
+      return false;
+    }
+
+    try {
+      setIsCheckingUsername(true);
+      // Check if username is already taken
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', username.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        setUsernameError('Username is already taken');
+        return false;
+      }
+      
+      setUsernameError('');
+      return true;
+    } catch (error) {
+      console.error('Error checking username:', error);
+      setUsernameError('Error checking username availability');
+      return false;
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+  
   // Handle next step
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1 && selectedInterests.length > 0) {
       setStep(2);
     } else if (step === 2) {
+      const isValid = await checkUsername(username);
+      if (isValid && user) {
+        // Update user document with username
+        try {
+          const userDoc = doc(db, 'users', user.uid);
+          await updateDoc(userDoc, {
+            username: username.toLowerCase()
+          });
+          setStep(3);
+        } catch (error) {
+          console.error('Error updating username:', error);
+          setUsernameError('Error saving username');
+        }
+      }
+    } else if (step === 3) {
       completeOnboarding();
     }
   };
@@ -220,7 +278,7 @@ export default function OnboardingPage() {
       {/* Main content */}
       {!isLoading && (
         <div className="relative z-20 w-full max-w-md mx-auto">
-          <div className="bg-black/60 backdrop-blur-xl rounded-xl border border-gray-800 shadow-2xl overflow-hidden">
+          <div className="bg-black/40 backdrop-blur-md rounded-xl border border-gray-800/70 shadow-2xl overflow-hidden">
             {step === 1 && (
               <div className="p-8">
                 <SiteStackLogo />
@@ -265,6 +323,63 @@ export default function OnboardingPage() {
               <div className="p-8">
                 <SiteStackLogo />
                 
+                <h1 className="text-2xl font-medium text-white text-center mb-2">Choose your username</h1>
+                <p className="text-gray-400 text-center text-sm mb-8">This will be your unique identifier on Marble</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                      Username
+                    </label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                        @
+                      </span>
+                      <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full bg-gray-800 text-white pl-8 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C8C3BC] placeholder-gray-500"
+                        placeholder="your_username"
+                      />
+                    </div>
+                    {usernameError && (
+                      <p className="mt-2 text-sm text-red-400">{usernameError}</p>
+                    )}
+                    <p className="mt-2 text-sm text-gray-400">
+                      Username must be 3-20 characters and can only contain letters, numbers, and underscores.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <button
+                    onClick={handleNext}
+                    disabled={isCheckingUsername || !username}
+                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                      isCheckingUsername || !username
+                        ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+                        : 'bg-white text-black hover:bg-gray-200'
+                    }`}
+                  >
+                    {isCheckingUsername ? (
+                      <span className="flex items-center justify-center">
+                        <LoadingSpinner />
+                        <span className="ml-2">Checking username...</span>
+                      </span>
+                    ) : (
+                      'Continue'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {step === 3 && (
+              <div className="p-8">
+                <SiteStackLogo />
+                
                 <h1 className="text-2xl font-medium text-white text-center mb-2">Recommended Websites</h1>
                 <p className="text-gray-400 text-center text-sm mb-8">
                   Select websites you find interesting for your project
@@ -303,7 +418,7 @@ export default function OnboardingPage() {
                 
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => setStep(1)}
+                    onClick={() => setStep(2)}
                     className="flex-1 py-3 px-4 bg-gray-800 text-white rounded-lg text-base font-medium hover:bg-gray-700 transition-colors"
                   >
                     Back
