@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -71,9 +72,13 @@ export default function LoginForm() {
   return (
     <div className="bg-black/60 backdrop-blur-xl p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-800 animate-fadeIn">
       <div className="flex items-center justify-center mb-6">
-        <div className="text-white text-3xl font-bold">
-          <span className="text-white">Marble</span>
-        </div>
+        <Image
+          src="/marble-logo.svg"
+          alt="Marble Logo"
+          width={80}
+          height={80}
+          className="drop-shadow-lg"
+        />
       </div>
       
       <h2 className="text-2xl font-medium text-white text-center mb-8">Login to Marble</h2>

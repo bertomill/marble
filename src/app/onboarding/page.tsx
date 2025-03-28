@@ -13,8 +13,15 @@ const INTEREST_CATEGORIES = [
   'Manufacturing', 'Professional Services', 'Non-profit', 'Art & Design'
 ];
 
+// Define the website type
+interface Website {
+  name: string;
+  url: string;
+  description: string;
+}
+
 // Sample websites by category (in a real app, these would come from an API)
-const SAMPLE_WEBSITES = {
+const SAMPLE_WEBSITES: Record<string, Website[]> = {
   'E-commerce': [
     { name: 'Shopify', url: 'shopify.com', description: 'A leading e-commerce platform for online stores and retail point-of-sale systems' },
     { name: 'Etsy', url: 'etsy.com', description: 'Global marketplace for unique and creative goods' },
@@ -48,7 +55,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
-  const [recommendedWebsites, setRecommendedWebsites] = useState<any[]>([]);
+  const [recommendedWebsites, setRecommendedWebsites] = useState<Website[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -139,9 +146,13 @@ export default function OnboardingPage() {
   // Marble logo component
   const SiteStackLogo = () => (
     <div className="flex items-center justify-center mb-6">
-      <div className="text-white text-3xl font-bold">
-        <span className="text-white">Marble</span>
-      </div>
+      <Image
+        src="/marble-logo.svg"
+        alt="Marble Logo"
+        width={80}
+        height={80}
+        className="drop-shadow-lg"
+      />
     </div>
   );
   
@@ -154,13 +165,17 @@ export default function OnboardingPage() {
   
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
-      {/* Enhanced background gradients */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-[60vw] h-[60vh] bg-gradient-to-bl from-gray-800/30 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-[60vw] h-[60vh] bg-gradient-to-tr from-gray-800/30 to-transparent"></div>
-        <div className="absolute top-[30%] left-[20%] w-[40vw] h-[40vh] rounded-full bg-blue-900/5 blur-[100px]"></div>
-        <div className="absolute bottom-[20%] right-[10%] w-[30vw] h-[30vh] rounded-full bg-indigo-900/5 blur-[80px]"></div>
-      </div>
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        style={{ filter: 'brightness(0.7)' }}
+      >
+        <source src="/marble_ball.mp4" type="video/mp4" />
+      </video>
       
       {/* Loading state */}
       {isLoading && (
