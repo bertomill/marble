@@ -64,7 +64,7 @@ export const addMultipleSampleScreenshots = async (count: number = 5): Promise<s
       const randomType = websiteTypes[Math.floor(Math.random() * websiteTypes.length)];
       
       // Select 1-2 random categories
-      const randomCategories = [];
+      const randomCategories: string[] = [];
       const categoryCount = Math.floor(Math.random() * 2) + 1;
       for (let j = 0; j < categoryCount; j++) {
         const cat = categories[Math.floor(Math.random() * categories.length)];
@@ -74,7 +74,7 @@ export const addMultipleSampleScreenshots = async (count: number = 5): Promise<s
       }
       
       // Select 2-5 random tags
-      const randomTags = [];
+      const randomTags: string[] = [];
       const tagCount = Math.floor(Math.random() * 4) + 2;
       for (let j = 0; j < tagCount; j++) {
         const tag = tags[Math.floor(Math.random() * tags.length)];

@@ -47,7 +47,7 @@ export default function ScreenshotDetailPage() {
     };
 
     fetchScreenshot();
-  }, [params.id, user, router]);
+  }, [params?.id, user, router]);
 
   // Format date from timestamp
   const formatDate = (date: Date | undefined) => {
