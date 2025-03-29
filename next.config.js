@@ -17,6 +17,33 @@ const nextConfig = {
     'sharp'
   ],
   
+  // Add webpack configuration for video files
+  webpack(config) {
+    // Method 1: Using file-loader (traditional approach)
+    config.module.rules.push({
+      test: /\.(mp4|webm)$/,
+      use: {
+        loader: 'file-loader',
+        options: {
+          publicPath: '/_next/static/media/',
+          outputPath: 'static/media/',
+          name: '[name].[hash].[ext]',
+        },
+      },
+    });
+
+    // Method 2: Using asset modules (newer webpack approach)
+    config.module.rules.push({
+      test: /\.(mp4|webm|ogg)$/i,
+      type: 'asset/resource',
+      generator: {
+        filename: 'static/media/[name].[hash][ext]',
+      },
+    });
+
+    return config;
+  },
+  
   // Add security headers configuration
   async headers() {
     return [
