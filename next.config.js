@@ -26,7 +26,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.marble.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' https://www.marble.dev; font-src 'self'; frame-src 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.marble.dev https://*.googleapis.com https://*.googletagmanager.com https://*.google.com https://vercel.live https://*.vercel.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleapis.com; media-src 'self' data: blob:; connect-src 'self' https://www.marble.dev https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.cloudfunctions.net; font-src 'self' data:; frame-src 'self' https://*.firebaseapp.com;",
           },
           {
             key: 'X-Content-Type-Options',
