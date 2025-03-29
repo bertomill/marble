@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import LangbaseHeader from '@/components/LangbaseHeader';
 
 export default function Home() {
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -43,8 +44,10 @@ export default function Home() {
   
   return (
     <main className="min-h-screen bg-black">
+      <LangbaseHeader />
+      
       {/* Hero section with modern design */}
-      <section className="relative min-h-screen bg-black overflow-hidden">
+      <section className="relative min-h-screen bg-black overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           {/* Video Background or Fallback Image */}
           <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -71,7 +74,7 @@ export default function Home() {
             )}
             
             {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black opacity-40"></div>
+            <div className="absolute inset-0 bg-black opacity-60"></div>
           </div>
           
           {/* Grid pattern overlay */}
@@ -90,32 +93,44 @@ export default function Home() {
           <div className="absolute inset-0 bg-radial-gradient"></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10 pt-32">
-          <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
-              Discover and share digital product designs <span className="text-white">@Marble</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mt-6 max-w-2xl">
-              Join a community of leading developers and designers building the future of software. Analyze, learn, and create.
-            </p>
-            
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <a 
-                href="/login?redirect=%2Fonboarding" 
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-black text-lg font-medium rounded-lg hover:bg-gray-200 transition duration-300"
-              >
-                Get Started
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </a>
-              <a 
-                href="/design-tools" 
-                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border border-white/20 text-white text-lg font-medium rounded-lg hover:bg-white/10 transition duration-300 backdrop-blur-sm"
-              >
-                Explore Tools
-              </a>
+        <div className="container mx-auto px-6 relative z-10 text-center">
+          {/* Logo with horizontal line style */}
+          <div className="flex justify-center mb-16">
+            <div className="relative">
+              <div className="flex items-center justify-center">
+                <div className="w-16 h-[10px] bg-gradient-to-r from-white/90 to-white/10 rounded-full"></div>
+              </div>
             </div>
+          </div>
+          
+          <h1 className="text-3xl md:text-6xl font-bold text-white mb-8 leading-tight animate-text-reveal">
+            <span className="block">discover and share</span>
+            <span className="block">beautiful digital experiences</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-300 mt-8 max-w-3xl mx-auto animate-text-reveal" style={{ animationDelay: '0.5s' }}>
+            Join our growing community of world-class designers and developers. Access over 10,000 premiere digital screens, 
+            <br className="hidden md:block" />
+            components, and videos — with new content added weekly.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+            <a 
+              href="/login?redirect=%2Fonboarding" 
+              className="inline-flex items-center justify-center px-8 py-4 bg-white text-black text-lg font-medium rounded-lg hover:bg-gray-200 transition duration-300 animate-text-reveal"
+              style={{ animationDelay: '0.9s' }}
+            >
+              Get started
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </a>
+            <a 
+              href="/design-tools" 
+              className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white text-lg font-medium rounded-lg hover:bg-white/10 transition duration-300 backdrop-blur-sm border border-white/20 animate-text-reveal"
+              style={{ animationDelay: '1.1s' }}
+            >
+              Video demo
+            </a>
           </div>
         </div>
       </section>

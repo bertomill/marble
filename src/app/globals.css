@@ -251,3 +251,78 @@ body {
 .theme-transition {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
+/* Radial gradient for Langbase-style header */
+.bg-radial-gradient {
+  background: radial-gradient(circle at center, rgba(30, 30, 30, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+/* Pulse animations for decorative elements */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes pulse-slower {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s infinite ease-in-out;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 8s infinite ease-in-out;
+}
+
+/* Floating animations for decorative elements */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float-slower {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s infinite ease-in-out;
+}
+
+.animate-float-slower {
+  animation: float-slower 9s infinite ease-in-out;
+}
+
+/* Subtle text animations for headers */
+@keyframes subtle-reveal {
+  0% { opacity: 0.85; transform: translateY(0.5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-text-reveal {
+  animation: subtle-reveal 1.5s ease-out forwards;
+}
+
+@keyframes subtle-char-reveal {
+  0% { opacity: 0.7; transform: translateY(1px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-char {
+  display: inline-block;
+  animation: subtle-char-reveal 0.5s ease-out forwards;
+}
+
+/* Add delays for character animation */
+.char-1 { animation-delay: 0.05s; }
+.char-2 { animation-delay: 0.1s; }
+.char-3 { animation-delay: 0.15s; }
+.char-4 { animation-delay: 0.2s; }
+.char-5 { animation-delay: 0.25s; }
+.char-6 { animation-delay: 0.3s; }
+.char-7 { animation-delay: 0.35s; }
+.char-8 { animation-delay: 0.4s; }
+.char-9 { animation-delay: 0.45s; }
+.char-10 { animation-delay: 0.5s; }
