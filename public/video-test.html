@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Video Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+    video {
+      width: 100%;
+      border: 1px solid #333;
+      margin: 20px 0;
+    }
+    a {
+      color: #4b9fff;
+      text-decoration: underline;
+    }
+    .debug {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #222;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Direct Video Test Page</h1>
+    <p>This is a simple HTML page with just a video element, bypassing Next.js completely.</p>
+    
+    <video controls>
+      <source src="/videos/test.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    
+    <div>
+      <a href="/">Back to Next.js App</a>
+    </div>
+    
+    <div class="debug">
+      <h2>Debug Info:</h2>
+      <p>Video source: /videos/test.mp4</p>
+      <p>Video size: 5.37 MB</p>
+      <p>Check browser console for any errors</p>
+    </div>
+  </div>
+
+  <script>
+    // Simple script to help debug video loading
+    document.addEventListener('DOMContentLoaded', function() {
+      const video = document.querySelector('video');
+      
+      if (video) {
+        console.log('Video element found');
+        
+        video.addEventListener('loadeddata', function() {
+          console.log('Video loaded successfully');
+        });
+        
+        video.addEventListener('error', function(e) {
+          console.error('Video error:', video.error);
+        });
+      }
+    });
+  </script>
+</body>
+</html> 
