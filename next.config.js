@@ -26,7 +26,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https://www.marble.dev https://*.googleapis.com https://*.googletagmanager.com https://*.google.com https://vercel.live https://*.vercel.app https://*.google-analytics.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleapis.com https://*.google-analytics.com; media-src 'self' data: blob:; connect-src 'self' https://www.marble.dev https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.cloudfunctions.net https://*.google-analytics.com; font-src 'self' data:; frame-src 'self' https://*.firebaseapp.com https://vercel.live https://apis.google.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.marble.dev/js/* https://*.googleapis.com https://*.googletagmanager.com https://*.google.com https://vercel.live https://*.vercel.app https://*.google-analytics.com https://apis.google.com;",
+            value: "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval' 'strict-dynamic'; style-src * 'unsafe-inline'; img-src * data: blob:; media-src * data: blob:; connect-src *; font-src * data:; frame-src *; script-src-elem * 'unsafe-inline' 'unsafe-eval';",
           },
           {
             key: 'X-Content-Type-Options',
