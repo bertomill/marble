@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Image Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+    .image-container {
+      margin: 20px 0;
+      padding: 15px;
+      background: #222;
+      border-radius: 8px;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    .bg-image {
+      height: 250px;
+      width: 100%;
+      background-image: url('/hero.png');
+      background-size: cover;
+      background-position: center;
+      border: 1px solid #444;
+      border-radius: 4px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bg-image-overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 4px;
+    }
+    a {
+      color: #4b9fff;
+      text-decoration: underline;
+    }
+    .debug {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #222;
+      border-radius: 5px;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 8px;
+    }
+    .success {
+      color: #4caf50;
+    }
+    .error {
+      color: #f44336;
+    }
+    .loading {
+      color: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hero Image Test Page</h1>
+    <p>This is a simple HTML page testing the hero.png image, bypassing Next.js completely.</p>
+    
+    <div class="image-container">
+      <h2>Direct Image Tag:</h2>
+      <img id="heroImage" src="/hero.png" alt="Hero Image">
+      <div class="status" id="imageStatus">
+        <p class="loading">Loading image...</p>
+      </div>
+    </div>
+
+    <div class="image-container">
+      <h2>CSS Background Image:</h2>
+      <div class="bg-image">
+        <div class="bg-image-overlay">This div has hero.png as background</div>
+      </div>
+    </div>
+    
+    <div>
+      <a href="/">Back to Next.js App</a>
+    </div>
+    
+    <div class="debug">
+      <h2>Debug Info:</h2>
+      <p>Image source: /hero.png</p>
+      <p>Image size: ~1.4 MB</p>
+      <p>Check browser console for any errors</p>
+    </div>
+  </div>
+
+  <script>
+    // Simple script to help debug image loading
+    document.addEventListener('DOMContentLoaded', function() {
+      const img = document.getElementById('heroImage');
+      const status = document.getElementById('imageStatus');
+      
+      if (img) {
+        console.log('Image element found');
+        
+        img.addEventListener('load', function() {
+          console.log('Image loaded successfully');
+          status.innerHTML = '<p class="success">✓ Image loaded successfully</p>';
+        });
+        
+        img.addEventListener('error', function(e) {
+          console.error('Image load error:', e);
+          status.innerHTML = '<p class="error">✗ Image failed to load</p>';
+        });
+      }
+    });
+  </script>
+</body>
+</html> 
