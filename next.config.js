@@ -53,7 +53,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval' 'strict-dynamic'; style-src * 'unsafe-inline'; img-src * data: blob:; media-src * data: blob:; connect-src *; font-src * data:; frame-src *; script-src-elem * 'unsafe-inline' 'unsafe-eval';",
+            value: "default-src * 'self' data: blob: filesystem: about: ws: wss: 'unsafe-inline' 'unsafe-eval' 'unsafe-dynamic'; script-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval' 'unsafe-dynamic'; connect-src * 'self' data: blob: http: https:; img-src * 'self' data: blob: http: https:; frame-src * 'self' data: blob: http: https:; style-src * 'self' 'unsafe-inline' http: https: data:; font-src * 'self' data: http: https:; media-src * 'self' data: blob: http: https:;",
           },
           {
             key: 'X-Content-Type-Options',
