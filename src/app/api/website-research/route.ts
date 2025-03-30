@@ -6,6 +6,7 @@ interface SearchResult {
   title: string;
   url: string;
   snippet: string;
+  description?: string;
   technologies?: string[];
   relevance?: string;
 }
