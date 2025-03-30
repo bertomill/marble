@@ -1,0 +1,1 @@
+curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"messages": [{"role": "user", "content": "What are the best e-commerce platforms in 2024?"}],"webSearch": {"enabled": true,"contextSize": "medium","location": {"country": "US"}}}'

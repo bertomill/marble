@@ -1,0 +1,36 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read access to all storage items
+    match /{allPaths=**} {
+      allow read: if true;
+      
+      // But only allow uploads and modifications for authenticated users
+      allow write: if request.auth != null;
+    }
+    
+    // Project-specific files can only be accessed by their owners
+    match /projects/{userId}/{projectId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User-specific uploads
+    match /users/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Screenshots - allow public read access
+    match /screenshots/{filename} {
+      allow read: if true; // Anyone can read screenshots
+      allow write: if request.auth != null; // Only authenticated users can upload
+    }
+    
+    // User profile images
+    match /users/{userId}/profile.jpg {
+      allow read: if request.auth != null; // Any authenticated user can view profile pics
+      allow write: if request.auth != null && request.auth.uid == userId; // Only the user can update their profile pic
+    }
+  }
+} 

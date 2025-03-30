@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - users can create and manage their own user documents
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Notes collection - public access for anyone
+    match /notes/{noteId} {
+      allow read, write: if true;  // Allow anyone to read and write to the notes collection
+    }
+    
+    // Projects collection - users can manage their own projects
+    match /projects/{projectId} {
+      // Fixed rules to match the 'uid' field name used in the code
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    
+    // Screens collection - users can manage their own screens
+    match /screens/{screenId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Website examples collection - accessible to any authenticated user
+    match /websiteExamples/{documentId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Screenshots collection - accessible to any authenticated user
+    match /screenshots/{documentId} {
+      // Allow any authenticated user to read screenshots
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to create and modify screenshots
+      allow write: if request.auth != null;
+    }
+    
+    // Allow users to read their own admin document
+    match /admins/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

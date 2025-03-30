@@ -1,0 +1,1264 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { AssistantRuntimeProvider, makeAssistantToolUI } from "@assistant-ui/react";
+import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
+import {
+  ActionBarPrimitive,
+  BranchPickerPrimitive,
+  ComposerPrimitive,
+  MessagePrimitive,
+  ThreadPrimitive,
+  WebSpeechSynthesisAdapter,
+} from "@assistant-ui/react";
+import {
+  ArrowDownIcon,
+  CheckIcon,
+  CopyIcon,
+  RefreshCwIcon,
+  SendHorizontalIcon,
+  PencilIcon,
+  Volume2Icon,
+  XCircleIcon,
+} from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { 
+  ComposerAttachments, 
+  ComposerAddAttachment, 
+  UserMessageAttachments 
+} from "@/components/assistant-ui/attachment";
+import { AINotes } from '@/components/assistant-ui/ai-notes';
+
+// Define the global attachment type
+declare global {
+  interface Window {
+    __ATTACHMENTS__: Array<{
+      id: string;
+      name: string;
+      type: string;
+      file: File;
+      url?: string;
+    }>;
+  }
+}
+
+// Define the WebSearchToolUI component
+type WebSearchArgs = {
+  query: string;
+};
+
+type WebSearchResult = {
+  title: string;
+  description: string;
+  url: string;
+};
+
+// Simple web search display component
+const WebSearchDisplay = ({ query }: { query: string }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState<WebSearchResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Fetch search results when the component mounts
+    const fetchResults = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        console.log(`Searching for: ${query}`);
+        
+        // Call our web-search API
+        const response = await fetch('/api/web-search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `API responded with status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
+          throw new Error('No search results found');
+        }
+        
+        setResults(data.results);
+        console.log('Search results:', data.results);
+      } catch (error) {
+        console.error('Error searching the web:', error);
+        setError((error as Error).message || 'Failed to fetch search results');
+        setResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (query) {
+      fetchResults();
+    } else {
+      setIsLoading(false);
+      setError('No search query provided');
+    }
+  }, [query]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border mt-2 mb-4">
+        <div className="animate-spin h-4 w-4 border-2 border-primary rounded-full border-t-transparent"></div>
+        <span>Searching the web for: <strong>{query}</strong></span>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="p-3 bg-muted/50 rounded-lg border border-destructive/20 mt-2 mb-4">
+        <p className="text-destructive text-sm">Error: {error}</p>
+      </div>
+    );
+  }
+  
+  if (results.length > 0) {
+    return (
+      <div className="p-3 bg-muted/50 rounded-lg border border-border mt-2 mb-4">
+        <h3 className="font-semibold mb-2">Web Search Results:</h3>
+        <ul className="space-y-2">
+          {results.map((item, i) => (
+            <li key={i} className="bg-background p-2 rounded border border-border/60">
+              <h4 className="font-medium text-primary">{item.title}</h4>
+              <p className="text-sm text-muted-foreground">{item.description}</p>
+              <a 
+                href={item.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-blue-500 hover:underline"
+              >
+                {item.url}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="p-3 bg-muted/50 rounded-lg border border-border mt-2 mb-4">
+      <p className="text-muted-foreground text-sm">No search results found for: {query}</p>
+    </div>
+  );
+};
+
+// Create the WebSearchToolUI component using our display component
+const WebSearchToolUI = makeAssistantToolUI<WebSearchArgs, WebSearchResult[]>({
+  toolName: "web_search",
+  render: ({ args, status }) => {
+    // Only render the search results when the tool is running or has completed
+    if (status.type === "running" || status.type === "complete") {
+      return <WebSearchDisplay query={args.query} />;
+    }
+    
+    return null;
+  }
+});
+
+// Define project requirements interface
+interface ProjectRequirements {
+  projectType: string;
+  targetAudience: string;
+  keyFeatures: string[];
+  designPreferences: string[];
+  similarWebsites: WebSearchResult[];
+  additionalNotes: string;
+}
+
+// Design Document component to display the collected requirements
+const DesignDocument = ({ designDoc }: { 
+  designDoc: {
+    title: string;
+    requirements: ProjectRequirements;
+    websiteStructure: string[];
+    databaseStructure: Array<{name: string, fields: string[]}>;
+    techStack: {
+      frontend: string[];
+      backend: string[];
+      database: string[];
+      deployment: string[];
+      cms: string[];
+    };
+    userFlow: string[];
+    designGuidelines: {
+      colorScheme: string;
+      typography: string;
+      layout: string;
+      components: string;
+    };
+    onClose: () => void;
+  }
+}) => {
+  return (
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-background border border-border rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">{designDoc.title} - Design Document</h2>
+          <Button 
+            onClick={() => designDoc.onClose()} 
+            variant="ghost" 
+            size="sm"
+            className="h-8 w-8 p-0"
+          >
+            <XCircleIcon className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <div className="space-y-6">
+          {/* Project Requirements */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">Project Requirements</h3>
+            <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
+              <div>
+                <h4 className="font-medium">Project Type</h4>
+                <p>{designDoc.requirements.projectType || "Not specified"}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium">Target Audience</h4>
+                <p>{designDoc.requirements.targetAudience || "Not specified"}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium">Key Features</h4>
+                {designDoc.requirements.keyFeatures.length > 0 ? (
+                  <ul className="list-disc pl-5">
+                    {designDoc.requirements.keyFeatures.map((feature: string, i: number) => (
+                      <li key={i}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No specific features identified</p>
+                )}
+              </div>
+              
+              <div>
+                <h4 className="font-medium">Design Preferences</h4>
+                {designDoc.requirements.designPreferences.length > 0 ? (
+                  <ul className="list-disc pl-5">
+                    {designDoc.requirements.designPreferences.map((pref: string, i: number) => (
+                      <li key={i}>{pref}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No specific design preferences identified</p>
+                )}
+              </div>
+            </div>
+          </section>
+          
+          {/* Website Structure */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">Website Structure</h3>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Proposed Pages</h4>
+              <ul className="grid grid-cols-2 gap-2">
+                {designDoc.websiteStructure.map((page: string, i: number) => (
+                  <li key={i} className="bg-background p-2 rounded border border-border/60">
+                    {page}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          
+          {/* Database Structure */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">Database Structure</h3>
+            <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+              {designDoc.databaseStructure.map((model: {name: string, fields: string[]}, i: number) => (
+                <div key={i} className="bg-background p-3 rounded border border-border/60">
+                  <h4 className="font-semibold">{model.name}</h4>
+                  <div className="mt-1 grid grid-cols-2 gap-1">
+                    {model.fields.map((field: string, j: number) => (
+                      <span key={j} className="text-sm bg-muted px-2 py-1 rounded">
+                        {field}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          
+          {/* Tech Stack */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">Recommended Tech Stack</h3>
+            <div className="bg-muted/50 p-4 rounded-lg grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium mb-2">Frontend</h4>
+                <ul className="list-disc pl-5">
+                  {designDoc.techStack.frontend.map((tech: string, i: number) => (
+                    <li key={i}>{tech}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-2">Backend</h4>
+                <ul className="list-disc pl-5">
+                  {designDoc.techStack.backend.map((tech: string, i: number) => (
+                    <li key={i}>{tech}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-2">Database</h4>
+                <ul className="list-disc pl-5">
+                  {designDoc.techStack.database.map((tech: string, i: number) => (
+                    <li key={i}>{tech}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-2">Deployment</h4>
+                <ul className="list-disc pl-5">
+                  {designDoc.techStack.deployment.map((tech: string, i: number) => (
+                    <li key={i}>{tech}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              {designDoc.techStack.cms.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">CMS</h4>
+                  <ul className="list-disc pl-5">
+                    {designDoc.techStack.cms.map((tech: string, i: number) => (
+                      <li key={i}>{tech}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+          
+          {/* User Flow */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">User Flow</h3>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <ul className="space-y-2">
+                {designDoc.userFlow.map((flow: string, i: number) => (
+                  <li key={i} className="bg-background p-2 rounded border border-border/60">
+                    {flow}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          
+          {/* Design Guidelines */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3 text-primary">Design Guidelines</h3>
+            <div className="bg-muted/50 p-4 rounded-lg grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium mb-1">Color Scheme</h4>
+                <p>{designDoc.designGuidelines.colorScheme}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-1">Typography</h4>
+                <p>{designDoc.designGuidelines.typography}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-1">Layout</h4>
+                <p>{designDoc.designGuidelines.layout}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium mb-1">Components</h4>
+                <p>{designDoc.designGuidelines.components}</p>
+              </div>
+            </div>
+          </section>
+          
+          {/* Similar Websites */}
+          {designDoc.requirements.similarWebsites.length > 0 && (
+            <section>
+              <h3 className="text-lg font-semibold mb-3 text-primary">Similar Websites</h3>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <ul className="space-y-2">
+                  {designDoc.requirements.similarWebsites.map((site: WebSearchResult, i: number) => (
+                    <li key={i} className="bg-background p-2 rounded border border-border/60">
+                      <h4 className="font-medium text-primary">{site.title}</h4>
+                      <p className="text-sm text-muted-foreground">{site.description}</p>
+                      <a 
+                        href={site.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-500 hover:underline"
+                      >
+                        {site.url}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
+        </div>
+        
+        <div className="mt-6 flex justify-end">
+          <Button onClick={() => designDoc.onClose()}>Close</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Define a Citation type to match OpenAI's response format
+type Citation = {
+  type: string;
+  url_citation: {
+    start_index: number;
+    end_index: number;
+    url: string;
+    title: string;
+  };
+}
+
+// Define message type with annotations
+interface MessageWithAnnotations {
+  role: string;
+  content: string;
+  annotations?: Citation[];
+}
+
+// Extend the UseChatRuntimeOptions to include webSearch
+interface ExtendedChatRuntimeOptions extends UseChatRuntimeOptions {
+  webSearch?: {
+    enabled: boolean;
+    contextSize?: "low" | "medium" | "high";
+    location?: {
+      country?: string;
+      city?: string;
+      region?: string;
+    };
+  };
+}
+
+// Component to render content with citations
+const ContentWithCitations = ({ content, citations }: { content: string, citations?: Citation[] }) => {
+  if (!citations || citations.length === 0) {
+    return <div>{content}</div>;
+  }
+
+  // Sort citations by start_index
+  const sortedCitations = [...citations].sort((a, b) => 
+    a.url_citation.start_index - b.url_citation.start_index
+  );
+
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  sortedCitations.forEach((citation, index) => {
+    const { start_index, end_index, url, title } = citation.url_citation;
+    
+    // Add text before the citation
+    if (start_index > lastIndex) {
+      parts.push(
+        <span key={`text-${index}`}>
+          {content.substring(lastIndex, start_index)}
+        </span>
+      );
+    }
+    
+    // Add the citation with link
+    parts.push(
+      <a 
+        key={`citation-${index}`}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline hover:text-primary/80"
+        title={title}
+      >
+        {content.substring(start_index, end_index)}
+      </a>
+    );
+    
+    lastIndex = end_index;
+  });
+  
+  // Add any remaining text after the last citation
+  if (lastIndex < content.length) {
+    parts.push(
+      <span key="text-end">
+        {content.substring(lastIndex)}
+      </span>
+    );
+  }
+  
+  return <div>{parts}</div>;
+};
+
+// Custom components for the create page
+export default function CreateProject() {
+  const [showDesignDoc, setShowDesignDoc] = useState(false);
+  const [projectRequirements, setProjectRequirements] = useState<ProjectRequirements>({
+    projectType: '',
+    targetAudience: '',
+    keyFeatures: [],
+    designPreferences: [],
+    similarWebsites: [],
+    additionalNotes: ''
+  });
+  
+  // Reference to track last message and extract information
+  const messagesRef = useRef<Array<{role: string, content: string}>>([]);
+  
+  // Initialize global attachments array and set up listener
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Initialize global attachments array if not exists
+      window.__ATTACHMENTS__ = window.__ATTACHMENTS__ || [];
+      
+      // Set up listener for attachment updates
+      const handleAttachmentUpdate = () => {
+        // We just need to trigger updates when attachments change
+        // No need to track the count
+      };
+      
+      window.addEventListener('attachment-updated', handleAttachmentUpdate);
+      
+      // Clean up
+      return () => {
+        window.removeEventListener('attachment-updated', handleAttachmentUpdate);
+        // Clear attachments when unmounting
+        window.__ATTACHMENTS__ = [];
+      };
+    }
+  }, []);
+
+  // Extract requirements from conversation
+  const extractRequirements = (messages: Array<{role: string, content: string}>) => {
+    // Skip system messages
+    const userAssistantMessages = messages.filter(m => m.role !== 'system');
+    const updatedRequirements = {...projectRequirements};
+    
+    // Simple pattern matching to extract information from messages
+    userAssistantMessages.forEach(message => {
+      const content = message.content;
+      
+      if (message.role === 'user') {
+        // Extract project type from user responses
+        if (content.toLowerCase().includes('e-commerce') || content.toLowerCase().includes('shop') || content.toLowerCase().includes('store')) {
+          updatedRequirements.projectType = 'E-commerce Store';
+        } else if (content.toLowerCase().includes('portfolio') || content.toLowerCase().includes('showcase')) {
+          updatedRequirements.projectType = 'Portfolio Website';
+        } else if (content.toLowerCase().includes('blog') || content.toLowerCase().includes('content')) {
+          updatedRequirements.projectType = 'Blog/Content Site';
+        } else if (content.toLowerCase().includes('business') || content.toLowerCase().includes('company')) {
+          updatedRequirements.projectType = 'Business Website';
+        } else if (content.toLowerCase().includes('application') || content.toLowerCase().includes('app')) {
+          updatedRequirements.projectType = 'Web Application';
+        } else if (content.toLowerCase().includes('landing')) {
+          updatedRequirements.projectType = 'Landing Page';
+        }
+        
+        // Extract audience information
+        if (content.toLowerCase().includes('audience') || content.toLowerCase().includes('users') || content.toLowerCase().includes('for')) {
+          updatedRequirements.targetAudience = content;
+        }
+        
+        // Extract features
+        if (content.toLowerCase().includes('feature') || content.toLowerCase().includes('functionality')) {
+          const features = content.split(/[,.]/).filter((f: string) => f.trim().length > 0);
+          if (features.length > 0) {
+            updatedRequirements.keyFeatures = [...updatedRequirements.keyFeatures, ...features];
+          }
+        }
+        
+        // Extract design preferences
+        if (content.toLowerCase().includes('design') || content.toLowerCase().includes('style') || content.toLowerCase().includes('look')) {
+          const preferences = content.split(/[,.]/).filter((p: string) => p.trim().length > 0);
+          if (preferences.length > 0) {
+            updatedRequirements.designPreferences = [...updatedRequirements.designPreferences, ...preferences];
+          }
+        }
+      }
+      
+      // Save all additional information
+      if (!updatedRequirements.additionalNotes.includes(content)) {
+        updatedRequirements.additionalNotes += content + "\n\n";
+      }
+    });
+    
+    setProjectRequirements(updatedRequirements);
+  };
+  
+  // Track search results
+  const saveSimilarWebsites = (results: WebSearchResult[]) => {
+    setProjectRequirements(prev => ({
+      ...prev,
+      similarWebsites: [...prev.similarWebsites, ...results]
+    }));
+  };
+
+  // Generate design document
+  const generateDesignDoc = () => {
+    // Structure the design document based on collected information
+    return {
+      title: "New Project",
+      requirements: projectRequirements,
+      websiteStructure: generateWebsiteStructure(projectRequirements),
+      databaseStructure: generateDatabaseStructure(projectRequirements),
+      techStack: recommendTechStack(projectRequirements),
+      userFlow: createUserFlow(projectRequirements),
+      designGuidelines: createDesignGuidelines(projectRequirements),
+      onClose: () => setShowDesignDoc(false)
+    };
+  };
+  
+  // Helper functions to generate design doc sections
+  const generateWebsiteStructure = (requirements: ProjectRequirements) => {
+    // Generate site structure based on project type and features
+    const pages: string[] = [];
+    
+    // Common pages for all sites
+    pages.push('Home', 'About', 'Contact');
+    
+    // Project type specific pages
+    if (requirements.projectType === 'E-commerce Store') {
+      pages.push('Products', 'Product Detail', 'Cart', 'Checkout', 'User Account');
+    } else if (requirements.projectType === 'Portfolio Website') {
+      pages.push('Projects', 'Project Detail', 'Services', 'Resume/CV');
+    } else if (requirements.projectType === 'Blog/Content Site') {
+      pages.push('Blog', 'Article Detail', 'Categories', 'Archive');
+    } else if (requirements.projectType === 'Business Website') {
+      pages.push('Services', 'Team', 'Testimonials', 'Pricing');
+    } else if (requirements.projectType === 'Web Application') {
+      pages.push('Dashboard', 'Settings', 'User Profile');
+    } else if (requirements.projectType === 'Landing Page') {
+      pages.push('Features', 'Pricing', 'Testimonials', 'FAQ');
+    }
+    
+    // Add custom features
+    requirements.keyFeatures.forEach(feature => {
+      if (feature.toLowerCase().includes('login') || feature.toLowerCase().includes('auth')) {
+        if (!pages.includes('Login/Register')) pages.push('Login/Register');
+      }
+      if (feature.toLowerCase().includes('blog') && !pages.includes('Blog')) {
+        pages.push('Blog');
+      }
+      // Add more feature-specific pages
+    });
+    
+    return pages;
+  };
+  
+  const generateDatabaseStructure = (requirements: ProjectRequirements) => {
+    // Generate database models based on project type
+    const models: Array<{name: string, fields: string[]}> = [];
+    
+    // Common models
+    models.push({ name: 'User', fields: ['id', 'name', 'email', 'password'] });
+    
+    // Project type specific models
+    if (requirements.projectType === 'E-commerce Store') {
+      models.push(
+        { name: 'Product', fields: ['id', 'name', 'description', 'price', 'images', 'category', 'inventory'] },
+        { name: 'Order', fields: ['id', 'user_id', 'items', 'status', 'shipping_address', 'payment_info'] },
+        { name: 'Cart', fields: ['id', 'user_id', 'items', 'total'] }
+      );
+    } else if (requirements.projectType === 'Portfolio Website') {
+      models.push(
+        { name: 'Project', fields: ['id', 'title', 'description', 'images', 'link', 'tags'] },
+        { name: 'Skill', fields: ['id', 'name', 'category', 'proficiency'] }
+      );
+    } else if (requirements.projectType === 'Blog/Content Site') {
+      models.push(
+        { name: 'Post', fields: ['id', 'title', 'content', 'author_id', 'published_date', 'tags', 'featured_image'] },
+        { name: 'Category', fields: ['id', 'name', 'description'] },
+        { name: 'Comment', fields: ['id', 'post_id', 'user_id', 'content', 'created_at'] }
+      );
+    }
+    
+    // Add more based on features
+    requirements.keyFeatures.forEach(feature => {
+      if (feature.toLowerCase().includes('newsletter') || feature.toLowerCase().includes('subscription')) {
+        models.push({ name: 'Subscription', fields: ['id', 'email', 'status', 'created_at'] });
+      }
+    });
+    
+    return models;
+  };
+  
+  const recommendTechStack = (requirements: ProjectRequirements) => {
+    // Recommend technology stack based on project requirements
+    const stack: {
+      frontend: string[],
+      backend: string[],
+      database: string[],
+      deployment: string[],
+      cms: string[]
+    } = {
+      frontend: ['Next.js', 'React', 'TailwindCSS'],
+      backend: ['Node.js'],
+      database: ['PostgreSQL'],
+      deployment: ['Vercel'],
+      cms: []
+    };
+    
+    // Adjust based on project type
+    if (requirements.projectType === 'E-commerce Store') {
+      stack.frontend.push('Stripe Elements');
+      stack.backend.push('Stripe API');
+      stack.cms.push('Shopify or Medusa.js');
+    } else if (requirements.projectType === 'Blog/Content Site') {
+      stack.cms.push('Sanity.io or Contentful');
+    }
+    
+    return stack;
+  };
+  
+  const createUserFlow = (requirements: ProjectRequirements) => {
+    // Create user flow based on project type
+    const flows: string[] = [];
+    
+    if (requirements.projectType === 'E-commerce Store') {
+      flows.push(
+        'Home → Browse Products → Product Detail → Add to Cart → Checkout → Payment → Order Confirmation'
+      );
+    } else if (requirements.projectType === 'Portfolio Website') {
+      flows.push(
+        'Home → Projects → Project Detail',
+        'Home → About → Contact'
+      );
+    } else if (requirements.projectType === 'Blog/Content Site') {
+      flows.push(
+        'Home → Blog → Article → Related Articles',
+        'Home → Categories → Filtered Articles'
+      );
+    }
+    
+    return flows;
+  };
+  
+  const createDesignGuidelines = (requirements: ProjectRequirements) => {
+    // Extract design preferences
+    const guidelines: {
+      colorScheme: string,
+      typography: string,
+      layout: string,
+      components: string
+    } = {
+      colorScheme: 'Neutral with brand accent colors',
+      typography: 'Modern, accessible fonts',
+      layout: 'Responsive, mobile-first design',
+      components: 'Consistent UI components with accessibility focus'
+    };
+    
+    // Adjust based on extracted preferences
+    requirements.designPreferences.forEach(pref => {
+      if (pref.toLowerCase().includes('minimal') || pref.toLowerCase().includes('clean')) {
+        guidelines.layout = 'Clean, minimal layout with plenty of whitespace';
+      }
+      if (pref.toLowerCase().includes('dark')) {
+        guidelines.colorScheme = 'Dark mode with accent colors';
+      }
+      if (pref.toLowerCase().includes('modern') || pref.toLowerCase().includes('bold')) {
+        guidelines.typography = 'Bold, modern typography with emphasis on headlines';
+      }
+    });
+    
+    return guidelines;
+  };
+
+  // Extract citations from messages 
+  const extractCitations = (message: MessageWithAnnotations): Citation[] => {
+    return message?.annotations?.filter((ann: Citation) => ann.type === 'url_citation') || [];
+  };
+
+  // Configure the chat runtime with web search enabled
+  const runtime = useChatRuntime({
+    api: "/api/chat",
+    // Enable web search as a custom parameter
+    webSearch: {
+      enabled: true,
+      contextSize: "medium",
+      location: {
+        country: "US"
+      }
+    },
+    // We're handling attachments manually in our components
+    adapters: {
+      speech: new WebSpeechSynthesisAdapter(),
+    },
+    // Use initial messages for the system prompt
+    initialMessages: [
+      {
+        role: "system", 
+        content: `You are a helpful and creative web design assistant. 
+Guide users through creating web projects with a friendly, conversational approach.
+Follow a systematic approach to collecting information:
+1. First, identify what type of project they want to build (e-commerce, portfolio, blog, etc.)
+2. Then ask about their target audience
+3. Follow up with questions about key features needed
+4. Ask about design preferences or inspirations
+
+After collecting information about project type, audience, features, and design preferences, search the web to find similar websites that meet their specific requirements. Be precise in your searches to find the most relevant examples.
+
+When presenting web search results:
+- Highlight how each website example aligns with the user's specific requirements
+- Point out design elements or features that match what the user is looking for
+- Ask if any of these examples match their vision or what aspects they like/dislike
+
+Keep the conversation focused on one aspect at a time and only move to the next when you have sufficient information.
+When you have enough information, provide a structured project plan with technology and design suggestions.
+
+I will be generating a design document based on our conversation, so please make sure to collect detailed information about:
+1. Project type
+2. Target audience
+3. Key features needed
+4. Design preferences
+5. Similar websites that match requirements
+
+Remember to cite your sources with links when you're providing specific information from the web.
+`
+      },
+      {
+        role: "assistant",
+        content: `# Hello! I'm your design assistant.
+
+I'll help you create the perfect web project tailored to your needs. What type of project are you interested in building?`
+      },
+    ]
+  } as any); // Use 'any' to bypass type checking for the webSearch property
+
+  // Track messages for requirements extraction
+  useEffect(() => {
+    if (runtime.state?.messages) {
+      messagesRef.current = runtime.state.messages;
+      extractRequirements(runtime.state.messages);
+    }
+  }, [runtime.state?.messages]);
+
+  // Track found websites from the web search
+  useEffect(() => {
+    if (runtime.state?.messages) {
+      const assistantMessages = runtime.state.messages.filter((m: any) => m.role === 'assistant');
+      
+      // Update similar websites from citations
+      const websites: WebSearchResult[] = [];
+      
+      assistantMessages.forEach((message: any) => {
+        const citations = extractCitations(message);
+        
+        citations.forEach((citation: Citation) => {
+          const { url, title } = citation.url_citation;
+          const description = "Referenced in conversation";
+          
+          // Only add if not already in the list
+          if (!websites.some(site => site.url === url)) {
+            websites.push({ title, url, description });
+          }
+        });
+      });
+      
+      if (websites.length > 0) {
+        setProjectRequirements(prev => ({
+          ...prev,
+          similarWebsites: [...prev.similarWebsites, ...websites]
+        }));
+      }
+    }
+  }, [runtime.state?.messages]);
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <div className="flex flex-col h-full min-h-screen bg-background">
+        {/* Main content */}
+        <div className="flex flex-col flex-1 overflow-hidden pt-0">
+          <ThreadPrimitive.Root
+            className="flex-1 flex flex-col overflow-hidden"
+            style={{ ["--thread-max-width" as string]: "72rem" }}
+          >
+            <ThreadPrimitive.Viewport className="flex flex-1 flex-col items-center overflow-y-auto scroll-smooth px-4 py-4 pb-32">
+              {/* Empty state */}
+              <ThreadWelcome />
+
+              {/* Messages */}
+              <ThreadPrimitive.Messages
+                components={{
+                  UserMessage: () => <UserMessage />,
+                  EditComposer: EditComposer,
+                  AssistantMessage: AssistantMessage,
+                }}
+              />
+
+              <ThreadPrimitive.If empty={false}>
+                <div className="min-h-8 flex-grow" />
+              </ThreadPrimitive.If>
+
+              {/* Composer area */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border/40 py-4 px-4 md:left-64">
+                <div className="max-w-[72rem] mx-auto">
+                  <ThreadScrollToBottom />
+                  <Composer />
+                </div>
+              </div>
+            </ThreadPrimitive.Viewport>
+          </ThreadPrimitive.Root>
+        </div>
+
+        {/* AI Notes Sidebar */}
+        {runtime.state?.messages && runtime.state.messages.length > 1 && (
+          <AINotes messages={runtime.state.messages} />
+        )}
+        
+        {/* Design Document Modal */}
+        {showDesignDoc && <DesignDocument designDoc={generateDesignDoc()} />}
+      </div>
+    </AssistantRuntimeProvider>
+  );
+}
+
+// Component for welcome message
+const ThreadWelcome = () => {
+  return (
+    <ThreadPrimitive.Empty>
+      <div className="flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
+        <div className="flex w-full flex-grow flex-col items-center justify-center p-5 pt-2">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <svg width="32" height="32" viewBox="0 0 24 24" className="text-primary">
+              <path 
+                fill="currentColor" 
+                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+              />
+            </svg>
+          </div>
+          <h1 className="mb-1 text-center text-xl font-bold">
+            Web Project Creator
+          </h1>
+          <p className="mb-4 max-w-md text-center text-sm text-muted-foreground">
+            Select from popular project templates or describe your custom idea. I&apos;ll help you build the perfect website for your needs.
+          </p>
+        </div>
+      </div>
+    </ThreadPrimitive.Empty>
+  );
+};
+
+// Scroll to bottom button
+const ThreadScrollToBottom = () => {
+  return (
+    <ThreadPrimitive.ScrollToBottom asChild>
+      <TooltipIconButton
+        tooltip="Scroll to bottom"
+        variant="outline"
+        className="absolute -top-8 rounded-full disabled:invisible"
+      >
+        <ArrowDownIcon />
+      </TooltipIconButton>
+    </ThreadPrimitive.ScrollToBottom>
+  );
+};
+
+// Composer component
+const Composer = () => {
+  return (
+    <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
+      <ComposerAttachments />
+      <ComposerPrimitive.Input
+        rows={1}
+        autoFocus
+        placeholder="Describe your project idea..."
+        className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
+        data-assistant-compose
+      />
+      <ComposerAddAttachment />
+      <ComposerAction />
+    </ComposerPrimitive.Root>
+  );
+};
+
+// Send/Cancel button
+const ComposerAction = () => {
+  return (
+    <>
+      <ThreadPrimitive.If running={false}>
+        <ComposerPrimitive.Send asChild>
+          <TooltipIconButton
+            tooltip="Send"
+            variant="default"
+            className="my-2.5 size-8 p-2 transition-opacity ease-in"
+            data-assistant-send
+          >
+            <SendHorizontalIcon />
+          </TooltipIconButton>
+        </ComposerPrimitive.Send>
+      </ThreadPrimitive.If>
+      <ThreadPrimitive.If running>
+        <ComposerPrimitive.Cancel asChild>
+          <TooltipIconButton
+            tooltip="Cancel"
+            variant="default"
+            className="my-2.5 size-8 p-2 transition-opacity ease-in"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+            >
+              <circle cx="12" cy="12" r="10" className="opacity-20" />
+              <path
+                d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM16 13H8C7.44772 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13Z"
+                clipRule="evenodd"
+                fillRule="evenodd"
+                className="opacity-80"
+              />
+            </svg>
+          </TooltipIconButton>
+        </ComposerPrimitive.Cancel>
+      </ThreadPrimitive.If>
+    </>
+  );
+};
+
+// User message component
+const UserMessage = () => {
+  return (
+    <MessagePrimitive.Root className="grid auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 [&:where(>*)]:col-start-2 w-full max-w-[var(--thread-max-width)] py-4">
+      <UserActionBar />
+
+      <div className="col-start-2 row-start-2 flex flex-col gap-2">
+        <UserMessageAttachments />
+        <div className="bg-muted text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words rounded-3xl px-5 py-2.5">
+          <MessagePrimitive.Content />
+        </div>
+      </div>
+
+      <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
+    </MessagePrimitive.Root>
+  );
+};
+
+// User message action bar
+const UserActionBar = () => {
+  return (
+    <ActionBarPrimitive.Root
+      hideWhenRunning
+      autohide="not-last"
+      className="flex flex-col items-end col-start-1 row-start-2 mr-3 mt-2.5"
+    >
+      <ActionBarPrimitive.Edit asChild>
+        <TooltipIconButton tooltip="Edit">
+          <PencilIcon />
+        </TooltipIconButton>
+      </ActionBarPrimitive.Edit>
+    </ActionBarPrimitive.Root>
+  );
+};
+
+// Edit composer component
+const EditComposer = () => {
+  return (
+    <ComposerPrimitive.Root className="bg-muted my-4 flex w-full max-w-[var(--thread-max-width)] flex-col gap-2 rounded-xl">
+      <ComposerPrimitive.Input className="text-foreground flex h-8 w-full resize-none bg-transparent p-4 pb-0 outline-none" />
+
+      <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
+        <ComposerPrimitive.Cancel asChild>
+          <Button variant="ghost">Cancel</Button>
+        </ComposerPrimitive.Cancel>
+        <ComposerPrimitive.Send asChild>
+          <Button>Send</Button>
+        </ComposerPrimitive.Send>
+      </div>
+    </ComposerPrimitive.Root>
+  );
+};
+
+// Assistant message component
+const AssistantMessage = () => {
+  const [messageComplete, setMessageComplete] = useState(false);
+  
+  // Set message as complete when rendered
+  useEffect(() => {
+    setMessageComplete(true);
+  }, []);
+
+  return (
+    <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr_auto_auto] relative w-full max-w-[var(--thread-max-width)] py-4">
+      <div className="text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5">
+        <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+      </div>
+
+      <AssistantActionBar />
+
+      <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
+      
+      {/* Quick reply options after message */}
+      <div className="col-span-2 col-start-2 row-start-3">
+        {messageComplete && <QuickReplyOptions />}
+      </div>
+    </MessagePrimitive.Root>
+  );
+};
+
+// Assistant message action bar
+const AssistantActionBar = () => {
+  return (
+    <ActionBarPrimitive.Root
+      hideWhenRunning
+      autohide="not-last"
+      autohideFloat="single-branch"
+      className="text-muted-foreground flex gap-1 col-start-3 row-start-2 -ml-1 data-[floating]:bg-background data-[floating]:absolute data-[floating]:rounded-md data-[floating]:border data-[floating]:p-1 data-[floating]:shadow-sm"
+    >
+      <ActionBarPrimitive.Copy asChild>
+        <TooltipIconButton tooltip="Copy">
+          <MessagePrimitive.If copied>
+            <CheckIcon />
+          </MessagePrimitive.If>
+          <MessagePrimitive.If copied={false}>
+            <CopyIcon />
+          </MessagePrimitive.If>
+        </TooltipIconButton>
+      </ActionBarPrimitive.Copy>
+      
+      <MessagePrimitive.If speaking={false}>
+        <ActionBarPrimitive.Speak asChild>
+          <TooltipIconButton tooltip="Read aloud">
+            <Volume2Icon />
+          </TooltipIconButton>
+        </ActionBarPrimitive.Speak>
+      </MessagePrimitive.If>
+      
+      <MessagePrimitive.If speaking>
+        <ActionBarPrimitive.StopSpeaking asChild>
+          <TooltipIconButton tooltip="Stop reading">
+            <XCircleIcon />
+          </TooltipIconButton>
+        </ActionBarPrimitive.StopSpeaking>
+      </MessagePrimitive.If>
+      
+      <ActionBarPrimitive.Reload asChild>
+        <TooltipIconButton tooltip="Refresh">
+          <RefreshCwIcon />
+        </TooltipIconButton>
+      </ActionBarPrimitive.Reload>
+    </ActionBarPrimitive.Root>
+  );
+};
+
+// Branch picker component
+const BranchPicker = ({ className = '', ...rest }: { className?: string } & Record<string, unknown>) => {
+  return (
+    <BranchPickerPrimitive.Root
+      hideWhenSingleBranch
+      className={`text-muted-foreground data-[state=visible]:animate-in data-[state=visible]:fade-in-0 data-[state=visible]:zoom-in-95 data-[state=visible]:slide-in-from-b-2 flex items-center ${className}`}
+      {...rest}
+    >
+      <BranchPickerPrimitive.Previous asChild>
+        <TooltipIconButton tooltip="Previous Alternative">
+          <ChevronLeftIcon className="size-3" />
+        </TooltipIconButton>
+      </BranchPickerPrimitive.Previous>
+
+      <div className="flex h-5 items-center text-xs">
+        {/* Branch index display */}
+      </div>
+
+      <BranchPickerPrimitive.Next asChild>
+        <TooltipIconButton tooltip="Next Alternative">
+          <ChevronRightIcon className="size-3" />
+        </TooltipIconButton>
+      </BranchPickerPrimitive.Next>
+    </BranchPickerPrimitive.Root>
+  );
+};
+
+// Import missing ChevronLeftIcon and ChevronRightIcon
+function ChevronLeftIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+// Quick reply options component to display after assistant messages
+const QuickReplyOptions = () => {
+  const [options, setOptions] = useState<string[]>([]);
+  const chatRuntime = useChatRuntime({ api: "/api/chat" });
+  
+  useEffect(() => {
+    // Set default options
+    setOptions([
+      "Tell me more",
+      "Show me examples",
+      "Next step"
+    ]);
+  }, []);
+
+  const handleOptionClick = (option: string) => {
+    if (chatRuntime && chatRuntime.sendMessage) {
+      // Submit the option as a user message
+      chatRuntime.sendMessage(option);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-3 mb-1">
+      {options.map((option, index) => (
+        <Button 
+          key={index}
+          variant="outline" 
+          size="sm"
+          onClick={() => handleOptionClick(option)}
+          className="text-sm"
+        >
+          {option}
+        </Button>
+      ))}
+    </div>
+  );
+}; 
