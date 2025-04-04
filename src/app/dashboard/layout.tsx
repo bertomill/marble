@@ -23,6 +23,7 @@ import {
   UserPlus,
   Clock,
   ChevronDown,
+  MessageSquare
 } from 'lucide-react';
 import { SearchDialog } from '@/components/ui/search-dialog';
 import { Button } from '@/components/ui/button';
@@ -81,6 +82,7 @@ export default function DashboardLayout({
     { href: '/dashboard', label: 'Home', icon: <Home className="h-5 w-5" /> },
     { href: '/dashboard/explore', label: 'Explore', icon: <Grid2x2 className="h-5 w-5" /> },
     { href: '/dashboard/projects', label: 'Projects', icon: <Layout className="h-5 w-5" /> },
+    { href: '/dashboard/feedback', label: 'Feedback', icon: <MessageSquare className="h-5 w-5" /> },
   ];
 
   const comingSoonItems = [
