@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
+import { CroppedImage } from "@/components/ui/cropped-image";
 
 // Image component with fallback
 const ImageWithFallback = ({ 
@@ -426,11 +426,12 @@ export default function ExplorePage() {
                 <div className="aspect-video relative overflow-hidden bg-muted">
                   {screenshot.imageUrl ? (
                     <div className="w-full h-full relative">
-                      <ImageWithFallback
+                      <CroppedImage
                         src={screenshot.imageUrl}
                         alt={screenshot.altText || screenshot.siteName}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         isValid={screenshot.id in validatedUrls ? validatedUrls[screenshot.id] : true}
+                        cropBottom={5}
                       />
                       <div className="absolute bottom-2 right-2">
                         <Badge variant="secondary" className="text-xs bg-black/60 text-white">

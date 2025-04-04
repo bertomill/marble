@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MainHeader } from "@/components/main-header";
+import { CroppedImage } from "@/components/ui/cropped-image";
 
 // Video Demo Modal Component
 const VideoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
@@ -108,85 +109,95 @@ export default function Home() {
               <div className="absolute inset-0 animate-infinite-scroll">
                 {/* First column - right */}
                 <div className="absolute right-[5%] top-[0px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 0.png" 
                     alt="iOS Screen 1" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 <div className="absolute right-[5%] top-[560px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 2.png" 
                     alt="iOS Screen 3" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 <div className="absolute right-[5%] top-[1120px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 4.png" 
                     alt="iOS Screen 5" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
 
                 <div className="absolute right-[5%] top-[1680px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 6.png" 
                     alt="iOS Screen 7" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 {/* Repeat first column images for seamless loop */}
                 <div className="absolute right-[5%] top-[2240px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 0.png" 
                     alt="iOS Screen 1 (repeated)" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 {/* Second column - left */}
                 <div className="absolute left-[5%] top-[60px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 1.png" 
                     alt="iOS Screen 2" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 <div className="absolute left-[5%] top-[620px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 3.png" 
                     alt="iOS Screen 4" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 <div className="absolute left-[5%] top-[1180px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 5.png" 
                     alt="iOS Screen 6" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 <div className="absolute left-[5%] top-[1740px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 7.png" 
                     alt="iOS Screen 8" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
                 
                 {/* Repeat second column images for seamless loop */}
                 <div className="absolute left-[5%] top-[2300px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
-                  <img 
+                  <CroppedImage 
                     src="/iOS Screens/iOS Screens 1.png" 
                     alt="iOS Screen 2 (repeated)" 
                     className="w-full h-full object-cover"
+                    cropBottom={5}
                   />
                 </div>
               </div>

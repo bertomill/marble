@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { CroppedImage } from "@/components/ui/cropped-image";
 
 // Project type definition
 interface Project {
@@ -422,13 +423,11 @@ ${project.designDocument?.recommendations?.map(rec => `- ${rec}`).join('\n') || 
                   {project.selectedScreenshots.map((screenshot, index) => (
                     <div key={index} className="border rounded-md overflow-hidden">
                       <div className="relative">
-                        <img 
+                        <CroppedImage 
                           src={screenshot.url} 
                           alt={screenshot.title}
                           className="w-full h-40 object-cover object-top"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                          }}
+                          cropBottom={5}
                         />
                         <div className="absolute top-2 left-2">
                           <span className="px-2 py-1 bg-black/70 text-white text-xs rounded-full font-medium">
@@ -478,13 +477,11 @@ ${project.designDocument?.recommendations?.map(rec => `- ${rec}`).join('\n') || 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {project.designDocument.sampleImages.map((image, index) => (
                     <div key={index} className="border rounded-md overflow-hidden">
-                      <img 
+                      <CroppedImage 
                         src={image} 
                         alt={`Design reference ${index + 1}`}
                         className="w-full h-32 object-cover object-top"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                        }}
+                        cropBottom={5}
                       />
                     </div>
                   ))}
@@ -504,13 +501,11 @@ ${project.designDocument?.recommendations?.map(rec => `- ${rec}`).join('\n') || 
                     {project.selectedScreenshots.map((screenshot, index) => (
                       <div key={index} className="border rounded-md overflow-hidden">
                         <div className="relative">
-                          <img 
+                          <CroppedImage 
                             src={screenshot.url} 
                             alt={screenshot.title}
                             className="w-full h-40 object-cover object-top"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                            }}
+                            cropBottom={5}
                           />
                           <div className="absolute top-2 left-2">
                             <span className="px-2 py-1 bg-black/70 text-white text-xs rounded-full font-medium">

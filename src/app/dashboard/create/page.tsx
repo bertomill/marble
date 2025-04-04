@@ -44,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CroppedImage } from "@/components/ui/cropped-image";
 
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, limit, addDoc } from 'firebase/firestore';
@@ -67,6 +68,7 @@ declare global {
 
 // Define project requirements interface
 interface ProjectRequirements {
+  projectTitle: string;
   projectDescription: string;
   projectType: string;
   targetAudience: string;
@@ -156,6 +158,7 @@ export default function CreateProject() {
   
   // Store previous values to track changes
   const prevRequirementsRef = useRef<ProjectRequirements>({
+    projectTitle: '',
     projectDescription: '',
     projectType: '',
     targetAudience: '',
@@ -166,6 +169,7 @@ export default function CreateProject() {
   });
   
   const [projectRequirements, setProjectRequirements] = useState<ProjectRequirements>({
+    projectTitle: '',
     projectDescription: '',
     projectType: '',
     targetAudience: '',
@@ -177,6 +181,7 @@ export default function CreateProject() {
 
   // Track project requirement fields that have been reviewed
   const [reviewedFields, setReviewedFields] = useState({
+    projectTitle: false,
     projectDescription: false,
     projectType: false,
     targetAudience: false,
@@ -274,6 +279,11 @@ export default function CreateProject() {
       updatedFields.push('projectType');
     }
     
+    if (projectRequirements.projectTitle !== prevRequirementsRef.current.projectTitle 
+        && projectRequirements.projectTitle !== '') {
+      updatedFields.push('projectTitle');
+    }
+    
     if (projectRequirements.projectDescription !== prevRequirementsRef.current.projectDescription 
         && projectRequirements.projectDescription !== '') {
       updatedFields.push('projectDescription');
@@ -310,6 +320,7 @@ export default function CreateProject() {
   useEffect(() => {
     // Check if project type, project description, target audience, key features, and design preferences are all filled
     if (
+      projectRequirements.projectTitle &&
       projectRequirements.projectType && 
       projectRequirements.projectDescription &&
       projectRequirements.targetAudience && 
@@ -898,7 +909,7 @@ You can visit the original URLs in your browser to view the actual design refere
       
       // Create a project entry with null checks for undefined values
       const projectData = {
-        name: projectRequirements.projectType || 'New Project',
+        name: projectRequirements.projectTitle || projectRequirements.projectType || 'New Project',
         description: projectRequirements.projectDescription || '',
         type: projectRequirements.projectType || '',
         targetAudience: projectRequirements.targetAudience || '',
@@ -1150,6 +1161,67 @@ You can visit the original URLs in your browser to view the actual design refere
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    {/* Project Title */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium">Project Title</h3>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              setReviewedFields({...reviewedFields, projectTitle: !reviewedFields.projectTitle});
+                            }}
+                          >
+                            {reviewedFields.projectTitle ? (
+                              <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <CheckIcon className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit2Icon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <Input 
+                          value={projectRequirements.projectTitle} 
+                          onChange={(e) => setProjectRequirements({...projectRequirements, projectTitle: e.target.value})}
+                          placeholder="Enter a name for your project..."
+                          className={`pr-24 ${reviewedFields.projectTitle ? "border-green-500" : "border-input"} 
+                                  ${lastUpdatedField === 'projectTitle' ? "border-blue-500 animate-pulse" : ""} bg-muted/60 text-foreground`}
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="absolute right-1 top-1 h-7 text-xs bg-muted/50 hover:bg-muted flex items-center gap-1.5 px-2.5 text-muted-foreground"
+                          onClick={() => {
+                            // Generate project title with AI
+                            const aiSuggestions = [
+                              "Elevate Fitness Tracker",
+                              "BizPro Inventory Manager",
+                              "Artisan Market Hub",
+                              "Creative Portfolio Showcase",
+                              "CommunityConnect Platform"
+                            ];
+                            const suggestion = aiSuggestions[Math.floor(Math.random() * aiSuggestions.length)];
+                            setProjectRequirements({...projectRequirements, projectTitle: suggestion});
+                            setLastUpdatedField('projectTitle');
+                          }}
+                        >
+                          <Sparkles className="h-3.5 w-3.5 mr-1" />
+                          <span>Generate with AI</span>
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Give your project a memorable name</p>
+                    </div>
+
                     {/* Project Description */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -1597,6 +1669,7 @@ You can visit the original URLs in your browser to view the actual design refere
                             onClick={() => {
                               // Mark all fields as reviewed
                               setReviewedFields({
+                                projectTitle: true,
                                 projectDescription: true,
                                 projectType: true,
                                 targetAudience: true,
@@ -1634,6 +1707,9 @@ You can visit the original URLs in your browser to view the actual design refere
                     <div className="mb-6 p-4 bg-muted/50 rounded-md">
                       <h4 className="text-sm font-medium mb-2">Search based on these requirements:</h4>
                       <ul className="space-y-1 text-sm">
+                        {projectRequirements.projectTitle && (
+                          <li><span className="font-medium">Project Title:</span> {projectRequirements.projectTitle}</li>
+                        )}
                         {projectRequirements.projectType && (
                           <li><span className="font-medium">Project Type:</span> {projectRequirements.projectType}</li>
                         )}
@@ -2025,12 +2101,13 @@ You can visit the original URLs in your browser to view the actual design refere
                                       }}
                                     >
                                       <div className="relative">
-                                        <img 
+                                        <CroppedImage 
                                           src={screenshot.url} 
                                           alt={screenshot.title}
-                                          className={`w-full object-cover object-top ${
+                                          className={`w-full ${
                                             screenshot.selected ? 'h-56 brightness-110' : 'h-44'
                                           } transition-all duration-200`}
+                                          cropBottom={5}
                                         />
                                         {screenshot.selected && (
                                           <div className="absolute top-2 right-2 bg-primary text-white p-1.5 rounded-full shadow-md">
@@ -2106,12 +2183,13 @@ You can visit the original URLs in your browser to view the actual design refere
                                     }}
                                   >
                                     <div className="relative">
-                                      <img 
+                                      <CroppedImage 
                                         src={screenshot.url} 
                                         alt={screenshot.title}
-                                        className={`w-full object-cover object-top ${
+                                        className={`w-full ${
                                           screenshot.selected ? 'h-56 brightness-110' : 'h-44'
                                         } transition-all duration-200`}
+                                        cropBottom={5}
                                       />
                                       {screenshot.selected && (
                                         <div className="absolute top-2 right-2 bg-primary text-white p-1.5 rounded-full shadow-md">
@@ -2346,10 +2424,11 @@ You can visit the original URLs in your browser to view the actual design refere
                                   .filter(s => s.selected)
                                   .map((screenshot) => (
                                     <div key={screenshot.id} className="border rounded-md overflow-hidden">
-                                      <img 
+                                      <CroppedImage 
                                         src={screenshot.url} 
                                         alt={screenshot.title}
                                         className="w-full h-24 object-cover object-top"
+                                        cropBottom={5}
                                       />
                                       <div className="p-2">
                                         <h5 className="text-xs font-medium truncate">{screenshot.title}</h5>
@@ -2625,6 +2704,7 @@ You can visit the original URLs in your browser to view the actual design refere
                 onClick={() => {
                   // Reset form for new project
                   setProjectRequirements({
+                    projectTitle: '',
                     projectDescription: '',
                     projectType: '',
                     targetAudience: '',
