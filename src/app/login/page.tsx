@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
+import { GithubAuthProvider } from 'firebase/auth';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -90,8 +91,17 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      await signInWithPopup(auth, githubProvider);
-      router.push('/dashboard');
+      // Get the GitHub authentication URL
+      const provider = new GithubAuthProvider();
+      const redirectUrl = `${window.location.origin}/api/auth/callback/github`;
+      
+      // Set the custom redirect URL in the provider
+      provider.setCustomParameters({
+        redirect_uri: redirectUrl
+      });
+      
+      // Instead of popup, use redirect flow
+      window.location.href = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUrl)}&scope=user:email`;
     } catch (err) {
       const errorMessage = err instanceof FirebaseError 
         ? err.message 

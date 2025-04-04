@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
       body: JSON.stringify({
         client_id: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
         client_secret: process.env.GITHUB_CLIENT_SECRET,
-        code: code
+        code: code,
+        // Add the redirect_uri that exactly matches what's configured in GitHub
+        redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.marble.dev'}/api/auth/callback/github`
       })
     });
 
