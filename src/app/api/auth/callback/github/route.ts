@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, githubProvider } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { signInWithCredential, GithubAuthProvider } from 'firebase/auth';
 
 export async function GET(request: NextRequest) {
@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        client_id: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        client_id: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || 'Ov23liTJRuTc3S0RW9kA',
+        client_secret: process.env.GITHUB_CLIENT_SECRET || '51472156d22b861153869f947dd7468403180320',
         code: code,
         // Add the redirect_uri that exactly matches what's configured in GitHub
         redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.marble.dev'}/api/auth/callback/github`
