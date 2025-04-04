@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import AuthListener from "@/components/auth-listener";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import ChatModal from "@/components/chat-modal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
           <Analytics />
           <AuthListener />
           <Toaster />
+          <ChatModal />
         </ThemeProvider>
       </body>
     </html>
