@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
 
@@ -67,9 +67,8 @@ export default function ChatModal() {
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
+          <DialogTitle>Send us a message</DialogTitle>
           <div className="flex flex-col p-4 space-y-4">
-            <h2 className="text-xl font-bold">Send us a message</h2>
-            
             <textarea
               className="w-full p-3 border rounded-md min-h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type your message here..."
