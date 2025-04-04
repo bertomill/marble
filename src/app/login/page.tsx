@@ -90,12 +90,14 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // Get the GitHub authentication URL
-      const clientId = 'Ov23liTJRuTc3S0RW9kA'; // Hardcode the client ID to avoid environment variable issues
-      const redirectUrl = `${window.location.origin}/api/auth/callback/github`;
+      // Use Firebase's built-in GitHub authentication with popup
+      const { signInWithPopup } = await import('firebase/auth');
+      const { auth, githubProvider } = await import('@/lib/firebase');
       
-      // Instead of popup, use redirect flow with hardcoded client ID
-      window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&scope=user:email`;
+      await signInWithPopup(auth, githubProvider);
+      
+      // Redirect to dashboard after successful login
+      router.push('/dashboard');
     } catch (err) {
       const errorMessage = err instanceof FirebaseError 
         ? err.message 

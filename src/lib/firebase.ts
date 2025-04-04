@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, User, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc, setDoc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getStorage } from 'firebase/storage';
@@ -99,6 +99,19 @@ export function setupAuthListeners() {
       sessionStorage.setItem('lastUid', user.uid);
     }
   });
+}
+
+export async function signInWithGitHub() {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    // The GitHub credential is already linked to your Firebase Auth user
+    // Your createOrUpdateUserInFirestore function should automatically run
+    // due to your onAuthStateChanged listener
+    return result.user;
+  } catch (error) {
+    console.error("GitHub sign-in error:", error);
+    throw error;
+  }
 }
 
 export { auth, googleProvider, githubProvider, analytics, db, storage }; 
