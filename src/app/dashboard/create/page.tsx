@@ -923,6 +923,9 @@ You can visit the original URLs in your browser to view the actual design refere
         status: 'completed',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        // Add feedback from review data
+        feedback: reviewData.finalFeedback || '',
+        reviewNotes: reviewData.reviewNotes || '',
         // Store user ID to apply permissions
         uid: user.uid,
         userEmail: user.email || '',
