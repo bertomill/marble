@@ -1,64 +1,53 @@
 'use client';
 
+// Import necessary React hooks and components
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+
+// Import Lucide icons for UI elements
 import { 
   Home, 
-  Search, 
   Settings, 
   LogOut, 
   Plus, 
-  ChevronsLeft, 
-  ChevronsRight, 
-  Menu,
   Users,
   Grid2x2,
   Layout,
-  X,
   Moon,
   Sun,
   UserPlus,
-  Clock,
-  ChevronDown,
   MessageSquare,
-  HelpCircle,
   Compass,
   BookOpen,
-  PlusCircle,
-  Bell,
   User as UserIcon
 } from 'lucide-react';
-import { SearchDialog } from '@/components/ui/search-dialog';
+
+// Import UI components
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import TourWrapper, { TourButton } from './TourWrapper';
 import { DashboardMobileMenu } from './dashboard-mobile-menu';
 
+// Main dashboard layout component
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // State management for user authentication and UI
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showTour, setShowTour] = useState(false);
   
+  // Router and pathname hooks
   const pathname = usePathname();
   const router = useRouter();
 
+  // Handle user authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -72,6 +61,7 @@ export default function DashboardLayout({
     return () => unsubscribe();
   }, [router]);
 
+  // Handle user sign out
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -81,6 +71,7 @@ export default function DashboardLayout({
     }
   };
 
+  // Show loading spinner while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background dark:bg-black">
@@ -88,32 +79,6 @@ export default function DashboardLayout({
       </div>
     );
   }
-
-  const navItems = [
-    { href: '/dashboard', label: 'Home', icon: <Home className="h-5 w-5" /> },
-    { href: '/dashboard/explore', label: 'Explore', icon: <Grid2x2 className="h-5 w-5" /> },
-    { href: '/dashboard/projects', label: 'Projects', icon: <Layout className="h-5 w-5" /> },
-    { href: '/dashboard/feedback', label: 'Feedback', icon: <MessageSquare className="h-5 w-5" /> },
-  ];
-
-  const comingSoonItems = [
-    { 
-      href: '#', 
-      label: 'Friends', 
-      icon: <UserPlus className="h-5 w-5" />,
-      comingSoon: true 
-    },
-    { 
-      href: '#', 
-      label: 'Team', 
-      icon: <Users className="h-5 w-5" />,
-      comingSoon: true 
-    },
-  ];
-
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
 
   // Determine which tour to show based on the current path
   const getTourType = () => {
@@ -123,15 +88,12 @@ export default function DashboardLayout({
     return 'dashboard'; // Default
   };
   
+  // Function to handle tour completion
   const handleTourComplete = () => {
-    setShowTour(false);
-  };
-  
-  // Function to start tour programmatically
-  const startTour = () => {
-    setShowTour(true);
+    // Any cleanup after tour completion
   };
 
+  // Main layout render
   return (
     <TourWrapper 
       tourType={getTourType()} 
@@ -140,10 +102,10 @@ export default function DashboardLayout({
     >
       <div className="min-h-screen bg-background">
         <div className="flex">
-          {/* Sidebar - hidden on mobile */}
+          {/* Desktop Sidebar */}
           <aside className="hidden md:flex md:w-64 lg:w-72 border-r border-border/40 flex-col h-screen fixed">
             <div className="flex flex-col h-full overflow-y-auto">
-              {/* Sidebar top section */}
+              {/* User Profile Section */}
               <div className="px-4 py-6">
                 <div className="flex items-center mb-6">
                   <Avatar className="h-10 w-10 mr-3">
@@ -158,6 +120,7 @@ export default function DashboardLayout({
                   </div>
                 </div>
                 
+                {/* Quick Actions */}
                 <div className="space-y-1">
                   <Button 
                     variant="outline" 
@@ -170,18 +133,13 @@ export default function DashboardLayout({
                     </Link>
                   </Button>
                   
-                  <Button 
-                    variant="ghost" 
-                    className="justify-start w-full" 
-                    onClick={startTour}
-                  >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Tour Guide
-                  </Button>
+                  <div className="w-full">
+                    <TourButton />
+                  </div>
                 </div>
               </div>
               
-              {/* Main navigation */}
+              {/* Main Navigation */}
               <nav className="flex-1 px-2 py-3 space-y-1">
                 <Link 
                   href="/dashboard" 
@@ -232,7 +190,7 @@ export default function DashboardLayout({
                 </Link>
               </nav>
               
-              {/* Bottom section */}
+              {/* Bottom Navigation */}
               <div className="p-4 border-t border-border/40 mt-auto">
                 <Link 
                   href="/dashboard/settings" 
@@ -272,7 +230,6 @@ export default function DashboardLayout({
             onOpenChange={setIsMobileMenuOpen}
             user={user}
             onSignOut={handleSignOut}
-            onStartTour={startTour}
           />
           
           {/* Main content */}

@@ -162,7 +162,7 @@ function DashboardContent() {
           <p className="text-muted-foreground">Here&apos;s what&apos;s happening with your projects today.</p>
         </div>
         <div className="mt-4 md:mt-0 flex items-center gap-2">
-          <TourButton onClick={() => {}} />
+          <TourButton />
           <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 h-11 font-medium text-base shadow-md new-project-button">
             <Plus className="h-5 w-5" />
             <span>New Project</span>

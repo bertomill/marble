@@ -19,13 +19,13 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useTour } from './TourWrapper'
 
 interface DashboardMobileMenuProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   user: User | null;
   onSignOut: () => void;
-  onStartTour: () => void;
 }
 
 export function DashboardMobileMenu({ 
@@ -33,8 +33,9 @@ export function DashboardMobileMenu({
   onOpenChange, 
   user, 
   onSignOut,
-  onStartTour
 }: DashboardMobileMenuProps) {
+  const { startTour } = useTour();
+  
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
@@ -99,7 +100,7 @@ export function DashboardMobileMenu({
                 className="w-full justify-start mb-2"
                 onClick={() => {
                   onOpenChange?.(false);
-                  onStartTour();
+                  startTour();
                 }}
               >
                 <HelpCircle className="h-5 w-5 mr-2" />

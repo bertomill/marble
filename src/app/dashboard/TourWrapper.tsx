@@ -136,7 +136,7 @@ export default function TourWrapper({
   };
   
   return (
-    <>
+    <TourContext.Provider value={{ startTour }}>
       {children}
       
       <Tour 
@@ -145,25 +145,29 @@ export default function TourWrapper({
         onOpenChange={setTourOpen} 
         onComplete={handleTourComplete} 
       />
-      
-      {/* Export the startTour function so it can be accessed by the children */}
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, { startTour } as any);
-        }
-        return child;
-      })}
-    </>
+    </TourContext.Provider>
   );
 }
 
+// Export the context so components can use it
+export const TourContext = React.createContext<{
+  startTour: () => void;
+}>({
+  startTour: () => {},
+});
+
+// Create a custom hook to use the tour context
+export const useTour = () => React.useContext(TourContext);
+
 // Helper component for tour buttons
-export function TourButton({ onClick }: { onClick: () => void }) {
+export function TourButton() {
+  const { startTour } = useTour();
+  
   return (
     <Button
       variant="ghost"
       size="sm"
-      onClick={onClick}
+      onClick={startTour}
       className="flex items-center gap-1"
     >
       <HelpCircle className="h-4 w-4" />
