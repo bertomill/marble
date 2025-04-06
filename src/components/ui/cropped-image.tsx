@@ -9,6 +9,7 @@ interface CroppedImageProps {
   className?: string;
   isValid?: boolean;
   cropBottom?: number; // percentage to crop from bottom (default: 5%)
+  preserveAspectRatio?: boolean; // Controls aspect ratio preservation
 }
 
 export function CroppedImage({ 
@@ -16,7 +17,8 @@ export function CroppedImage({
   alt, 
   className = "",
   isValid = true,
-  cropBottom = 5
+  cropBottom = 5,
+  preserveAspectRatio = false
 }: CroppedImageProps) {
   const [imgSrc, setImgSrc] = useState<string>('');
   const [hasError, setHasError] = useState<boolean>(!isValid);
@@ -114,9 +116,12 @@ export function CroppedImage({
           <img
             src={imgSrc}
             alt={alt}
-            className="w-full h-full object-cover object-top"
+            className={cn(
+              "w-full h-full", 
+              preserveAspectRatio ? "object-contain" : "object-cover object-top"
+            )}
             style={{ 
-              clipPath: `inset(0 0 ${cropBottom}% 0)`, // Crop the bottom percentage
+              clipPath: `inset(0 0 ${cropBottom}% 0)`, // Always crop the bottom percentage
               transform: `scale(1.${Math.floor(cropBottom / 2)})` // Slightly scale image to compensate for cropping
             }}
             onError={() => {

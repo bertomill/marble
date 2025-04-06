@@ -101,103 +101,103 @@ export default function Home() {
             </div>
             
             {/* Right side image grid - MasterClass style collage */}
-            <div className="w-full lg:w-1/2 relative h-[750px] overflow-hidden">
+            <div className="w-full lg:w-1/2 relative h-[600px] sm:h-[700px] md:h-[750px] overflow-hidden">
               {/* Overlay gradient for smoother transition at top/bottom */}
               <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background z-20 pointer-events-none"></div>
               
               {/* Images container with infinite scroll animation */}
               <div className="absolute inset-0 animate-infinite-scroll">
                 {/* First column - right */}
-                <div className="absolute right-[5%] top-[0px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute right-[5%] top-[0px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 0.png" 
                     alt="iOS Screen 1" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
-                <div className="absolute right-[5%] top-[560px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute right-[5%] top-[460px] sm:top-[500px] md:top-[560px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 2.png" 
                     alt="iOS Screen 3" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
-                <div className="absolute right-[5%] top-[1120px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute right-[5%] top-[920px] sm:top-[1000px] md:top-[1120px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 4.png" 
                     alt="iOS Screen 5" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
 
-                <div className="absolute right-[5%] top-[1680px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute right-[5%] top-[1380px] sm:top-[1500px] md:top-[1680px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 6.png" 
                     alt="iOS Screen 7" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
                 {/* Repeat first column images for seamless loop */}
-                <div className="absolute right-[5%] top-[2240px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute right-[5%] top-[1840px] sm:top-[2000px] md:top-[2240px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 0.png" 
                     alt="iOS Screen 1 (repeated)" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
                 {/* Second column - left */}
-                <div className="absolute left-[5%] top-[60px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute left-[5%] top-[30px] sm:top-[40px] md:top-[60px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 1.png" 
                     alt="iOS Screen 2" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
-                <div className="absolute left-[5%] top-[620px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute left-[5%] top-[490px] sm:top-[540px] md:top-[620px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 3.png" 
                     alt="iOS Screen 4" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
-                <div className="absolute left-[5%] top-[1180px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute left-[5%] top-[950px] sm:top-[1040px] md:top-[1180px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 5.png" 
                     alt="iOS Screen 6" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
-                <div className="absolute left-[5%] top-[1740px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute left-[5%] top-[1410px] sm:top-[1540px] md:top-[1740px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 7.png" 
                     alt="iOS Screen 8" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
                 
                 {/* Repeat second column images for seamless loop */}
-                <div className="absolute left-[5%] top-[2300px] w-[40%] h-[540px] overflow-hidden rounded-lg shadow-md">
+                <div className="absolute left-[5%] top-[1870px] sm:top-[2040px] md:top-[2300px] w-[40%] sm:w-[38%] max-w-[280px] h-[450px] sm:h-[490px] md:h-[540px] overflow-hidden rounded-lg shadow-md">
                   <CroppedImage 
                     src="/iOS Screens/iOS Screens 1.png" 
                     alt="iOS Screen 2 (repeated)" 
-                    className="w-full h-full object-cover"
-                    cropBottom={5}
+                    className="w-full h-full"
+                    preserveAspectRatio={true}
                   />
                 </div>
               </div>
