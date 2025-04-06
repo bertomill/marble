@@ -31,7 +31,8 @@ interface Project {
   progress?: number;
 }
 
-export default function Dashboard({ startTour }: { startTour?: () => void }) {
+// Create a client component for dashboard content
+function DashboardContent() {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [stats, setStats] = useState([
@@ -161,7 +162,7 @@ export default function Dashboard({ startTour }: { startTour?: () => void }) {
           <p className="text-muted-foreground">Here&apos;s what&apos;s happening with your projects today.</p>
         </div>
         <div className="mt-4 md:mt-0 flex items-center gap-2">
-          {startTour && <TourButton onClick={startTour} />}
+          <TourButton onClick={() => {}} />
           <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 h-11 font-medium text-base shadow-md new-project-button">
             <Plus className="h-5 w-5" />
             <span>New Project</span>
@@ -331,4 +332,9 @@ export default function Dashboard({ startTour }: { startTour?: () => void }) {
       </div>
     </div>
   );
+}
+
+// Export a page component without props
+export default function DashboardPage() {
+  return <DashboardContent />;
 } 

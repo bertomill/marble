@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
 import { TourButton } from '../TourWrapper';
 
-export default function CreateProject({ startTour }: { startTour?: () => void }) {
+// Create a client component that accepts the startTour prop
+function CreateProjectForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  // We'll access startTour through the TourWrapper instead
 
   useEffect(() => {
     // Check if the user is logged in
@@ -80,7 +82,8 @@ export default function CreateProject({ startTour }: { startTour?: () => void })
             Back to Dashboard
           </Button>
           
-          {startTour && <TourButton onClick={startTour} />}
+          {/* The TourButton will be handled by TourWrapper */}
+          <TourButton onClick={() => {}} />
         </div>
         
         <div className="bg-card rounded-lg border border-border/50 p-6 shadow-sm dark:border-border/30 dark:bg-card/50">
@@ -129,4 +132,9 @@ export default function CreateProject({ startTour }: { startTour?: () => void })
       </div>
     </>
   );
+}
+
+// Export a page component without props
+export default function CreateProjectPage() {
+  return <CreateProjectForm />;
 } 
