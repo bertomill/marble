@@ -42,7 +42,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import TourWrapper, { TourButton } from './TourWrapper';
-import { MainHeader } from '@/components/main-header';
 import { DashboardMobileMenu } from './dashboard-mobile-menu';
 
 export default function DashboardLayout({
@@ -140,11 +139,9 @@ export default function DashboardLayout({
       autoStart={true} // Auto start for first-time users
     >
       <div className="min-h-screen bg-background">
-        <MainHeader user={user} />
-        
         <div className="flex">
           {/* Sidebar - hidden on mobile */}
-          <aside className="hidden md:flex md:w-64 lg:w-72 border-r border-border/40 flex-col h-[calc(100vh-64px)] fixed">
+          <aside className="hidden md:flex md:w-64 lg:w-72 border-r border-border/40 flex-col h-screen fixed">
             <div className="flex flex-col h-full overflow-y-auto">
               {/* Sidebar top section */}
               <div className="px-4 py-6">
