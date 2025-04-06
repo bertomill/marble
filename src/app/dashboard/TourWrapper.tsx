@@ -165,10 +165,10 @@ export function TourButton() {
   
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="sm"
       onClick={startTour}
-      className="flex items-center gap-1"
+      className="flex items-center gap-1 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary border-primary/20 hover:border-primary/30 font-medium"
     >
       <HelpCircle className="h-4 w-4" />
       Show Guide

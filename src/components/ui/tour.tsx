@@ -102,12 +102,6 @@ export function Tour({ steps, open, onOpenChange, onComplete }: TourProps) {
       <DialogContent className="sm:max-w-[425px] rounded-lg p-6 shadow-lg border border-border/50 bg-card/95 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle className="text-xl">{steps[currentStep]?.title}</DialogTitle>
-          <button 
-            onClick={handleSkip}
-            className="absolute top-4 right-4 rounded-sm p-1 text-muted-foreground hover:bg-muted"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogHeader>
         
         <DialogDescription className="py-4 text-base">
