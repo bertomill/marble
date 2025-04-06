@@ -5,8 +5,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MobileMenu } from "@/components/mobile-menu"
 import { CircularImage } from "@/components/ui/circular-image"
+import { User } from "firebase/auth"
 
-export function MainHeader() {
+export function MainHeader({ user }: { user?: User | null }) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -60,12 +61,18 @@ export function MainHeader() {
           
           <div className="flex items-center gap-4">
             <MobileMenu />
-            <Link href="/login" className="hidden md:block text-sm text-white/80 hover:text-white">
-              Login
-            </Link>
-            <Link href="/login">
+            {user ? (
+              <Link href="/dashboard" className="hidden md:block text-sm text-white/80 hover:text-white">
+                Dashboard
+              </Link>
+            ) : (
+              <Link href="/login" className="hidden md:block text-sm text-white/80 hover:text-white">
+                Login
+              </Link>
+            )}
+            <Link href={user ? "/dashboard" : "/login"}>
               <Button variant="default" className="rounded-full px-5 hidden md:flex">
-                Start free →
+                {user ? "Go to Dashboard" : "Start free →"}
               </Button>
             </Link>
           </div>

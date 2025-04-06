@@ -14,11 +14,11 @@ import {
   Plus,
   FileText,
   Settings,
-  HelpCircle,
   CheckCircle,
   MessageSquare
 } from 'lucide-react';
 import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { TourButton } from './TourWrapper';
 
 // Project interface
 interface Project {
@@ -31,7 +31,7 @@ interface Project {
   progress?: number;
 }
 
-export default function Dashboard() {
+export default function Dashboard({ startTour }: { startTour?: () => void }) {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [stats, setStats] = useState([
@@ -155,13 +155,14 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center dashboard-welcome">
         <div>
           <h1 className="text-2xl font-bold">Welcome back, {user?.displayName || user?.email?.split('@')[0] || 'Robert Mill'}</h1>
           <p className="text-muted-foreground">Here&apos;s what&apos;s happening with your projects today.</p>
         </div>
-        <div className="mt-4 md:mt-0">
-          <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 h-11 font-medium text-base shadow-md">
+        <div className="mt-4 md:mt-0 flex items-center gap-2">
+          {startTour && <TourButton onClick={startTour} />}
+          <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 h-11 font-medium text-base shadow-md new-project-button">
             <Plus className="h-5 w-5" />
             <span>New Project</span>
           </Button>
@@ -169,7 +170,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 dashboard-stats">
         {stats.map((stat, index) => (
           <div key={index} className="bg-card rounded-lg border border-border/50 shadow-sm p-4 dark:shadow-none dark:border-border/30 dark:bg-card/50">
             <div className="flex justify-between items-start">
@@ -187,7 +188,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Projects Section */}
-      <div>
+      <div className="dashboard-recent-projects">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Recent Projects</h2>
           <Link 
@@ -275,86 +276,57 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="bg-card rounded-lg border border-border/50 dark:border-border/30 shadow-sm p-6 dark:shadow-none dark:bg-card/50">
-          <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              className="justify-start"
-              onClick={() => window.location.href = '/dashboard/create'}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
-            </Button>
-            <Button 
-              variant="outline" 
-              className="justify-start"
-              onClick={() => window.location.href = '/dashboard/projects'}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              All Projects
-            </Button>
-            <Button 
-              variant="outline" 
-              className="justify-start"
-              onClick={() => window.location.href = '/dashboard/settings'}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-            <Button 
-              variant="outline" 
-              className="justify-start"
-              onClick={() => window.location.href = '/dashboard/help'}
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              Help Center
-            </Button>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border/50 dark:border-border/30 shadow-sm p-6 dark:shadow-none dark:bg-card/50">
-          <h3 className="text-lg font-medium mb-4">Recent Activity</h3>
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      {/* Quick Actions */}
+      <div className="dashboard-quick-actions">
+        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <Link href="/dashboard/create">
+            <div className="bg-card hover:bg-card/80 cursor-pointer rounded-lg border border-border/50 p-4 flex items-center gap-4 transition-colors">
+              <div className="p-2 bg-primary/10 rounded-full text-primary">
+                <Plus className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-medium">New Project</h3>
+                <p className="text-sm text-muted-foreground">Create a project</p>
+              </div>
             </div>
-          ) : projects.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No recent activity</p>
-          ) : (
-            <div className="space-y-4">
-              {projects.slice(0, 3).map((project, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    project.status.toLowerCase() === 'completed' 
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-300'
-                      : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300'
-                  }`}>
-                    {project.status.toLowerCase() === 'completed' 
-                      ? <CheckCircle className="h-4 w-4" />
-                      : <MessageSquare className="h-4 w-4" />
-                    }
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{
-                      project.status.toLowerCase() === 'completed' 
-                        ? `${project.name} project completed` 
-                        : `Updated ${project.name}`
-                    }</p>
-                    <p className="text-xs text-muted-foreground">
-                      {project.updatedAt 
-                        ? new Date(project.updatedAt.toDate()).toLocaleDateString() 
-                        : project.createdAt 
-                          ? new Date(project.createdAt.toDate()).toLocaleDateString()
-                          : 'Recently'
-                      }
-                    </p>
-                  </div>
-                </div>
-              ))}
+          </Link>
+          
+          <Link href="/dashboard/projects">
+            <div className="bg-card hover:bg-card/80 cursor-pointer rounded-lg border border-border/50 p-4 flex items-center gap-4 transition-colors">
+              <div className="p-2 bg-primary/10 rounded-full text-primary">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-medium">All Projects</h3>
+                <p className="text-sm text-muted-foreground">View all projects</p>
+              </div>
             </div>
-          )}
+          </Link>
+          
+          <Link href="/dashboard/settings">
+            <div className="bg-card hover:bg-card/80 cursor-pointer rounded-lg border border-border/50 p-4 flex items-center gap-4 transition-colors">
+              <div className="p-2 bg-primary/10 rounded-full text-primary">
+                <Settings className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-medium">Settings</h3>
+                <p className="text-sm text-muted-foreground">Configure app</p>
+              </div>
+            </div>
+          </Link>
+          
+          <Link href="/dashboard/feedback">
+            <div className="bg-card hover:bg-card/80 cursor-pointer rounded-lg border border-border/50 p-4 flex items-center gap-4 transition-colors">
+              <div className="p-2 bg-primary/10 rounded-full text-primary">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-medium">Feedback</h3>
+                <p className="text-sm text-muted-foreground">Send us feedback</p>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

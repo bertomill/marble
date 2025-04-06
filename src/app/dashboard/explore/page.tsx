@@ -63,17 +63,35 @@ const ImageWithFallback = ({
             // Handle URL encoding
             storagePath = decodeURIComponent(storagePath);
           } else {
-            // Use the full URL as fallback
-            setImgSrc(src);
-            setLoading(false);
-            return;
+            // If we can't extract the path, use Firebase getDownloadURL with the full path
+            try {
+              // Try to get a direct download URL from Firebase which includes authentication tokens
+              const storageRef = ref(storage, src);
+              const downloadUrl = await getDownloadURL(storageRef);
+              setImgSrc(downloadUrl);
+              setHasError(false);
+              setLoading(false);
+              return;
+            } catch (fbError) {
+              console.error(`Firebase storage path error:`, fbError);
+              // Fallback to using the direct URL
+              setImgSrc(src);
+              setLoading(false);
+              return;
+            }
           }
           
           console.log('Loading from Firebase Storage:', storagePath);
-          // Get the download URL from Firebase Storage
-          const storageRef = ref(storage, storagePath);
-          const downloadUrl = await getDownloadURL(storageRef);
-          setImgSrc(downloadUrl);
+          try {
+            // Get the download URL from Firebase Storage
+            const storageRef = ref(storage, storagePath);
+            const downloadUrl = await getDownloadURL(storageRef);
+            setImgSrc(downloadUrl);
+          } catch (storageError) {
+            console.error(`Firebase storage error for ${storagePath}:`, storageError);
+            // If Firebase fails, try using the direct URL with no-cors as fallback
+            setImgSrc(src);
+          }
         } else {
           // Regular URL
           setImgSrc(src);
@@ -159,19 +177,28 @@ export default function ExplorePage() {
     // Only process up to 10 images at once to avoid rate limiting
     for (const screenshot of screenshotsWithUrls.slice(0, 10)) {
       try {
-        // Check if URL is valid by sending a HEAD request
-        const response = await fetch(screenshot.imageUrl, { 
-          method: 'HEAD',
-          // Short timeout so we don't hang waiting for responses
-          signal: AbortSignal.timeout(3000)
-        });
-        urlValidationMap[screenshot.id] = response.ok;
-        if (!response.ok) {
-          console.warn(`Image URL validation failed for ${screenshot.id}: ${screenshot.imageUrl}`);
+        // Check if URL is valid by sending a HEAD request with no-cors mode
+        // Note: with no-cors we can't check status, so we'll assume all URLs are valid
+        // and rely on the image component to handle errors
+        if (screenshot.imageUrl.includes('firebasestorage.googleapis.com') || 
+            screenshot.imageUrl.includes('sitestack-30e64.firebasestorage.app')) {
+          // For Firebase Storage URLs, we'll skip validation and assume they're valid
+          // These will be properly handled in the ImageWithFallback component
+          urlValidationMap[screenshot.id] = true;
+        } else {
+          // For non-Firebase URLs, we can still try validation with no-cors
+          await fetch(screenshot.imageUrl, { 
+            method: 'HEAD',
+            mode: 'no-cors', // Use no-cors mode to avoid CORS errors
+            signal: AbortSignal.timeout(2000)
+          });
+          // With no-cors mode, we can't check response.ok, so assume it worked
+          urlValidationMap[screenshot.id] = true;
         }
       } catch (error) {
         console.warn(`Image URL validation error for ${screenshot.id}:`, error);
-        urlValidationMap[screenshot.id] = false;
+        // Even if validation fails, mark as true and let the image component handle errors
+        urlValidationMap[screenshot.id] = true;
       }
     }
     

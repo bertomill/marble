@@ -6,7 +6,11 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["firebasestorage.googleapis.com"],
+    domains: [
+      "firebasestorage.googleapis.com", 
+      "storage.googleapis.com", 
+      "sitestack-30e64.firebasestorage.app"
+    ],
     remotePatterns: [
       {
         protocol: "https",

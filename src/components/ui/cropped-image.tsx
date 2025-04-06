@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
 
 interface CroppedImageProps {
   src: string;
@@ -21,14 +23,66 @@ export function CroppedImage({
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!src) {
-      setHasError(true);
-      setLoading(false);
-      return;
+    async function loadImage() {
+      if (!src) {
+        setHasError(true);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Check if URL is a Firebase Storage URL
+        if (src.includes('sitestack-30e64.firebasestorage.app') || src.includes('firebasestorage.googleapis.com')) {
+          // Extract the path from the URL
+          let storagePath = '';
+          
+          if (src.includes('/screenshots/')) {
+            // Get the path after "/screenshots/"
+            storagePath = 'screenshots/' + src.split('/screenshots/')[1];
+            // Handle URL encoding
+            storagePath = decodeURIComponent(storagePath);
+          } else {
+            // If we can't extract the path properly, try with the original URL
+            try {
+              const storageRef = ref(storage, src);
+              const downloadUrl = await getDownloadURL(storageRef);
+              setImgSrc(downloadUrl);
+              setHasError(false);
+              setLoading(false);
+              return;
+            } catch (error) {
+              console.error("Error getting download URL for direct path:", error);
+              // Fallback to direct URL
+              setImgSrc(src);
+              setLoading(false);
+              return;
+            }
+          }
+          
+          try {
+            // Get the download URL from Firebase Storage with proper authentication
+            const storageRef = ref(storage, storagePath);
+            const downloadUrl = await getDownloadURL(storageRef);
+            setImgSrc(downloadUrl);
+          } catch (error) {
+            console.error("Firebase storage error:", error);
+            // Fallback to direct URL
+            setImgSrc(src);
+          }
+        } else {
+          // Regular URL
+          setImgSrc(src);
+        }
+        setHasError(false);
+      } catch (error) {
+        console.error(`Error loading image (${src}):`, error);
+        setHasError(true);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    setImgSrc(src);
-    setLoading(false);
+    loadImage();
   }, [src]);
 
   if (loading) {

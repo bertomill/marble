@@ -155,7 +155,7 @@ export default function FeedbackPage() {
                         <Star
                           key={i}
                           size={16}
-                          className={i < item.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+                          className={i < (item.rating ?? 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
                         />
                       ))}
                     </div>

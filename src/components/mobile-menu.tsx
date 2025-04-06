@@ -11,9 +11,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-export function MobileMenu() {
+interface MobileMenuProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function MobileMenu({ open, onOpenChange }: MobileMenuProps) {
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden text-white">
           <Menu className="h-5 w-5" />

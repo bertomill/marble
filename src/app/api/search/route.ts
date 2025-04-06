@@ -1,21 +1,31 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { collection, getDocs, query, limit as firestoreLimit, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 // Define the interface for the search result
 interface SearchResult {
-  title: string;
-  url: string;
-  snippet: string;
+  id: string;
+  imageUrl: string;
+  siteName: string;
   description?: string;
+  altText?: string;
+  category?: string;
+  tags?: string[];
+  score?: number;
+  url?: string; // For backward compatibility
+  title?: string; // For backward compatibility
+  snippet?: string; // For backward compatibility
 }
 
-interface SearchResponse {
-  results: SearchResult[];
+interface Ranking {
+  id: string;
+  score: number;
 }
 
 export async function POST(request: Request) {
   try {
-    const { query, options } = await request.json();
+    const { query: searchQuery, limit = 10 } = await request.json();
     
     // Validate API key
     const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -31,79 +41,97 @@ export async function POST(request: Request) {
       apiKey: openaiApiKey,
     });
 
-    // Construct search context to explicitly request more examples
-    const resultsCount = options?.limit || 5;
-    const searchQuery = `Find ${resultsCount} real examples of ${query} with links to live sites and their technology stacks. Format as structured JSON with title, url, and description properties for each.`;
+    // For large databases, we don't want to fetch all 10,000 screenshots
+    // Instead, fetch a reasonable batch (200 most recent) to analyze
+    const screenshotsRef = collection(db, 'screenshots');
+    const screenshotsQuery = query(
+      screenshotsRef,
+      orderBy('createdAt', 'desc'),
+      firestoreLimit(200)
+    );
     
-    // Call OpenAI API with web search capabilities
+    const querySnapshot = await getDocs(screenshotsQuery);
+    
+    // Convert to array of screenshots
+    const screenshots = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as SearchResult[];
+
+    // If no screenshots, return empty results
+    if (screenshots.length === 0) {
+      return NextResponse.json({ results: [] });
+    }
+
+    // Prepare data for OpenAI to analyze - only send the necessary fields to reduce token usage
+    const screenshotData = screenshots.map(s => ({
+      id: s.id,
+      siteName: s.siteName || s.title || '',
+      description: s.description || s.altText || s.snippet || '',
+      category: s.category || '',
+      tags: s.tags || [],
+    }));
+
+    // Use OpenAI to analyze and rank the screenshots
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-search-preview",
-      web_search_options: {
-        search_context_size: options?.search_context_size || "high",
-      },
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You are a helpful assistant that searches the web to find relevant project examples based on the user's requirements. Provide ${resultsCount} distinct examples with titles, URLs, and descriptions including technology stack used if available. IMPORTANT: Format your response as valid JSON with an array of objects that have title, url, and description fields. Focus on finding real, live websites that match the requirements.`
+          content: `You are an AI assistant that helps find relevant UI/UX design screenshots based on user queries. 
+          You'll be given a list of screenshots with their metadata and a user's search query. 
+          Your job is to analyze which screenshots are most relevant to the query and rank them.
+          Return ONLY valid JSON with an array under the key "rankings" containing objects with "id" and "score" properties (score from 0-1).`
         },
         {
           role: "user",
-          content: searchQuery
+          content: `Find the most relevant screenshots for this query: "${searchQuery}"\n\nHere are the screenshots:\n${JSON.stringify(screenshotData, null, 2)}`
         }
       ],
+      response_format: { type: "json_object" },
     });
 
-    // Extract and parse suggestions from the response
+    // Parse the AI's response
     const responseContent = completion.choices[0].message.content || '';
+    let aiResponse;
     
-    // Attempt to parse JSON first
-    let results: SearchResult[] = [];
     try {
-      // Check if the response contains JSON
-      const jsonMatch = responseContent.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-      if (jsonMatch) {
-        try {
-          const parsedData = JSON.parse(jsonMatch[0]);
-          if (Array.isArray(parsedData)) {
-            results = parsedData;
-          } else if (parsedData.results && Array.isArray(parsedData.results)) {
-            results = parsedData.results;
-          } else if (parsedData.examples && Array.isArray(parsedData.examples)) {
-            results = parsedData.examples;
-          } else {
-            // Look for any array property that might contain results
-            const arrayProps = Object.keys(parsedData).filter(key => 
-              Array.isArray(parsedData[key]) && parsedData[key].length > 0
-            );
-            
-            if (arrayProps.length > 0) {
-              results = parsedData[arrayProps[0]];
-            }
-          }
-        } catch {
-          // Silently catch and continue with structured text extraction
-          console.log('JSON parsing failed, will attempt structured text extraction');
-        }
-      }
-      
-      // If no results from JSON parsing, try structured text extraction
-      if (results.length === 0) {
-        results = extractStructuredResults(responseContent);
-      }
+      aiResponse = JSON.parse(responseContent);
     } catch (error) {
-      console.error('Failed to parse response:', error);
-      // Fallback to structured text extraction
-      results = extractStructuredResults(responseContent);
+      console.error('Failed to parse AI response:', error);
+      // If parsing fails, just return the screenshots without AI ranking
+      return NextResponse.json({ 
+        results: screenshots.slice(0, limit) 
+      });
     }
-    
-    // Clean up any malformed result data
-    const cleanResults = results.map(result => ({
-      title: cleanJsonString(result.title || ''),
-      url: cleanJsonString(result.url || '#'),
-      snippet: cleanJsonString(result.description || result.snippet || '')
-    }));
 
-    return NextResponse.json({ results: cleanResults } as SearchResponse);
+    // Get the rankings from the AI response
+    const rankings = aiResponse.rankings || aiResponse.results || [];
+    
+    // Map the rankings to the actual screenshots
+    const rankedResults = rankings
+      .filter((r: Ranking) => r.id && r.score !== undefined)
+      .map((ranking: Ranking) => {
+        const screenshot = screenshots.find(s => s.id === ranking.id);
+        if (screenshot) {
+          return {
+            ...screenshot,
+            score: ranking.score
+          };
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .slice(0, limit);
+
+    // If AI ranking failed, fall back to the original screenshots
+    if (rankedResults.length === 0) {
+      return NextResponse.json({ 
+        results: screenshots.slice(0, limit) 
+      });
+    }
+
+    return NextResponse.json({ results: rankedResults });
   } catch (error) {
     console.error('Search API error:', error);
     return NextResponse.json(
@@ -111,81 +139,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-// Helper function to clean JSON string values
-const cleanJsonString = (str: string): string => {
-  if (!str) return '';
-  return str.replace(/\\"/g, '"')
-            .replace(/^"(.+)"$/, '$1')
-            .replace(/\\n/g, ' ')
-            .replace(/["']\s*url\s*["']\s*:\s*["']/g, '')
-            .replace(/["']$/g, '')
-            .trim();
-};
-
-// Function to extract structured results from text
-function extractStructuredResults(text: string): SearchResult[] {
-  const results: SearchResult[] = [];
-  
-  // Try to find examples with clear headers using various patterns
-  
-  // Pattern 1: Numbered examples with title, URL, and description
-  const pattern1 = /(\d+)[\.\)]\s+([^\n]+?)\s*(?:[-–—]\s*)?(?:URL|Link|Website)?:?\s*(https?:\/\/[^\s\n]+)(?:[^\n]*Description:?\s*([^\n]+))?/gi;
-  let match;
-  
-  while ((match = pattern1.exec(text)) !== null) {
-    results.push({
-      title: match[2].trim(),
-      url: match[3].trim(),
-      snippet: match[4] ? match[4].trim() : ''
-    });
-  }
-  
-  // Pattern 2: Site names with URL on separate line
-  if (results.length === 0) {
-    const siteBlocks = text.split(/\n\s*\n/);
-    
-    for (const block of siteBlocks) {
-      const titleMatch = block.match(/(?:\d+[\.\)]\s+)?([^\n]+)/);
-      const urlMatch = block.match(/(?:URL|Link|Website)?:?\s*(https?:\/\/[^\s\n]+)/i);
-      
-      if (titleMatch && urlMatch) {
-        const descriptionMatch = block.match(/(?:Description|About):\s*([^\n]+)/i) || 
-                                 block.replace(titleMatch[0], '').replace(urlMatch[0], '').match(/([^\n]+)/);
-        
-        results.push({
-          title: titleMatch[1].trim(),
-          url: urlMatch[1].trim(),
-          snippet: descriptionMatch ? descriptionMatch[1].trim() : ''
-        });
-      }
-    }
-  }
-  
-  // Pattern 3: Look for URL patterns and extract surrounding context
-  if (results.length === 0) {
-    const urlPattern = /(https?:\/\/[^\s\n]+)/g;
-    let urlMatch;
-    
-    while ((urlMatch = urlPattern.exec(text)) !== null) {
-      const url = urlMatch[1];
-      const startPos = Math.max(0, urlMatch.index - 100);
-      const endPos = Math.min(text.length, urlMatch.index + url.length + 100);
-      const context = text.substring(startPos, endPos);
-      
-      // Try to find title before URL
-      const titleBefore = context.substring(0, urlMatch.index - startPos).match(/(?:\d+[\.\)]|\*)?\s*([^\n\d][^\n]+)$/);
-      // Try to find description after URL
-      const descAfter = context.substring(urlMatch.index - startPos + url.length).match(/^([^\n]+)/);
-      
-      results.push({
-        title: titleBefore ? titleBefore[1].trim() : `Example ${results.length + 1}`,
-        url: url,
-        snippet: descAfter ? descAfter[1].trim() : ''
-      });
-    }
-  }
-  
-  return results;
 } 
